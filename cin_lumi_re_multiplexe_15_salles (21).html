@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciné Lumière — Multiplexe 15 Salles</title>
+    <!-- Chargement de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Police Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Icônes Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Génération QR Code & Export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        cinema: {
+                            bg: 'var(--bg-primary)',
+                            card: 'var(--bg-card)',
+                            elevated: 'var(--bg-elevated)',
+                            accent: '#2563EB',
+                            lime: '#10B981',
+                            muted: 'var(--text-muted)'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        /* Variables de thème à contraste élevé (WCAG AAA / AA renforcé) */
+        :root {
+            --bg-primary: #EEF2F7;
+            --bg-card: #FFFFFF;
+            --bg-card-frosted: rgba(255, 255, 255, 0.9);
+            --bg-elevated: #E2E8F0;
+            --text-primary: #090D16;
+            --text-secondary: #1E293B;
+            --text-muted: #334155;
+            --border-subtle: rgba(15, 23, 42, 0.24);
+        }
+        html.dark {
+            --bg-primary: #090B10;
+            --bg-card: #131620;
+            --bg-card-frosted: rgba(22, 24, 33, 0.9);
+            --bg-elevated: #1D2230;
+            --text-primary: #FFFFFF;
+            --text-secondary: #F1F5F9;
+            --text-muted: #CBD5E1;
+            --border-subtle: rgba(255, 255, 255, 0.24);
+        }
+
+        /* Adaptation automatique des contrastes en mode clair */
+        html:not(.dark) .text-white { color: var(--text-primary) !important; }
+        html:not(.dark) .text-slate-100,
+        html:not(.dark) .text-slate-200,
+        html:not(.dark) .text-slate-300 { color: var(--text-secondary) !important; }
+        html:not(.dark) .border-white\/10,
+        html:not(.dark) .border-white\/15,
+        html:not(.dark) .border-white\/20,
+        html:not(.dark) .border-white\/25 { border-color: var(--border-subtle) !important; }
+        html:not(.dark) .bg-white\/5,
+        html:not(.dark) .bg-white\/10 { background-color: rgba(15, 23, 42, 0.08) !important; }
+        html:not(.dark) .bg-cinema-accent.text-white,
+        html:not(.dark) .bg-blue-600.text-white,
+        html:not(.dark) .bg-indigo-600.text-white,
+        html:not(.dark) .bg-cinema-accent .text-white,
+        html:not(.dark) .bg-blue-600 .text-white,
+        html:not(.dark) .bg-indigo-600 .text-white { color: #FFFFFF !important; }
+        html:not(.dark) .hero-banner {
+            background: linear-gradient(to right, #DBEAFE, #FFFFFF, #E0E7FF) !important;
+            border-color: rgba(37, 99, 235, 0.35) !important;
+        }
+        html:not(.dark) .text-blue-300,
+        html:not(.dark) .text-blue-400 { color: #1D4ED8 !important; }
+        html:not(.dark) .text-indigo-300 { color: #4338CA !important; }
+        html:not(.dark) .text-emerald-300 { color: #047857 !important; }
+        html:not(.dark) .text-amber-300,
+        html:not(.dark) .text-amber-400 { color: #B45309 !important; }
+        html:not(.dark) .text-rose-300 { color: #BE123C !important; }
+
+        /* Contraste renforcé pour les badges d'âge en mode clair */
+        html:not(.dark) .bg-sky-500\/20 {
+            background-color: #E0F2FE !important;
+            border-color: #0284C7 !important;
+            color: #0369A1 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+        }
+        html:not(.dark) .bg-emerald-500\/20 {
+            background-color: #D1FAE5 !important;
+            border-color: #059669 !important;
+            color: #065F46 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+        }
+        html:not(.dark) .bg-rose-500\/20 {
+            background-color: #FFE4E6 !important;
+            border-color: #E11D48 !important;
+            color: #9F1239 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+        }
+        .bg-amber-500\/20 {
+            background-color: #FEF3C7 !important;
+            border-color: #D97706 !important;
+            color: #92400E !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+        }
+
+        /* Barre de navigation inférieure flottante (Tabbar) */
+        .bottom-nav-shell {
+            opacity: 1 !important;
+            background-color: var(--bg-card-frosted) !important;
+            -webkit-backdrop-filter: blur(22px) saturate(180%) !important;
+            backdrop-filter: blur(22px) saturate(180%) !important;
+            border: 1.5px solid var(--border-subtle);
+            box-shadow: 0 20px 45px -10px rgba(9, 13, 22, 0.35), 0 4px 16px rgba(9, 13, 22, 0.16);
+        }
+        html.dark .bottom-nav-shell {
+            opacity: 1 !important;
+            background-color: var(--bg-card-frosted) !important;
+            box-shadow: 0 22px 48px -10px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.14);
+        }
+
+        .bottom-nav-btn {
+            opacity: 1 !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            height: 3.75rem;
+            width: 100%;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.015em;
+            transition: all 0.18s ease;
+            color: var(--text-primary) !important;
+        }
+        .bottom-nav-btn:hover {
+            background-color: var(--bg-elevated);
+        }
+
+        .bottom-nav-btn.is-active {
+            opacity: 1 !important;
+            background-color: #2563EB !important;
+            color: #FFFFFF !important;
+            border: 1.5px solid #93C5FD;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+        }
+        .bottom-nav-btn.is-active i,
+        .bottom-nav-btn.is-active span {
+            color: #FFFFFF !important;
+        }
+
+        /* Couleurs contrastées des icônes inactives selon le thème */
+        html:not(.dark) #bottom-nav-home:not(.is-active) .nav-icon-slot i { color: #1D4ED8 !important; }
+        html:not(.dark) #bottom-nav-tickets:not(.is-active) .nav-icon-slot i { color: #047857 !important; }
+        html:not(.dark) #bottom-nav-program:not(.is-active) .nav-icon-slot i { color: #B45309 !important; }
+        html:not(.dark) #bottom-nav-profile:not(.is-active) .nav-icon-slot i { color: #6D28D9 !important; }
+
+        /* Conteneur d'icône strictement identique (24px) pour les 4 onglets */
+        .nav-icon-slot {
+            width: 1.75rem;
+            height: 1.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .nav-icon-slot i {
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        /* Transitions fluides d'apparition/disparition entre les deux emplacements de recherche */
+        #header-search-btn {
+            transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                        max-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                        padding 0.24s ease,
+                        border-width 0.2s ease;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        #header-search-btn.is-docked-hidden {
+            opacity: 0;
+            transform: translateY(-6px) scale(0.95);
+            max-width: 0;
+            padding-left: 0;
+            padding-right: 0;
+            border-width: 0;
+            pointer-events: none;
+        }
+        #header-search-btn.is-docked-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            max-width: 180px;
+            pointer-events: auto;
+        }
+
+        #inline-search-container {
+            transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #inline-search-container.is-scrolled-away {
+            opacity: 0;
+            transform: translateY(-4px) scale(0.98);
+            pointer-events: none;
+        }
+
+        .type-h1 { font-size: clamp(1.65rem, 3.6vw, 2.5rem); font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; }
+        .type-h2 { font-size: clamp(1.3rem, 2.8vw, 1.85rem); font-weight: 800; letter-spacing: -0.015em; line-height: 1.25; }
+        .type-h3 { font-size: clamp(1.1rem, 2.2vw, 1.35rem); font-weight: 700; line-height: 1.3; }
+        .type-body { font-size: clamp(0.95rem, 1.5vw, 1.05rem); line-height: 1.6; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="min-h-screen bg-cinema-bg text-slate-100 font-sans antialiased flex flex-col justify-between overflow-x-hidden transition-colors duration-300">
+
+    <!-- Barre de navigation supérieure -->
+    <header id="main-header" class="sticky top-0 z-40 bg-cinema-bg/95 backdrop-blur-xl border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2">
+            <button onclick="navigateTo('home')" class="flex items-center gap-2 sm:gap-3 text-left group min-w-0">
+                <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-105 transition shrink-0">
+                    <i class="ph-fill ph-film-strip text-xl sm:text-2xl text-white"></i>
+                </div>
+                <div class="min-w-0">
+                    <span class="text-base sm:text-xl font-black tracking-tight text-white block leading-none truncate">Ciné Lumière</span>
+                    <span class="text-[10px] sm:text-xs font-bold text-cinema-muted block truncate mt-0.5">15 Salles<span class="hidden sm:inline"> · Dolby &amp; IMAX</span></span>
+                </div>
+            </button>
+
+            <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+                <!-- Bouton d'accès rapide à la recherche centrée (masqué en haut de la page d'accueil, affiché au défilement ou sur les autres vues) -->
+                <button id="header-search-btn" onclick="openSearchModal()" title="Rechercher un film"
+                    class="is-docked-hidden px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-xs font-extrabold text-white flex items-center gap-1.5 shadow-sm">
+                    <i class="ph-bold ph-magnifying-glass text-base text-blue-400 shrink-0"></i>
+                    <span id="header-search-label" class="hidden md:inline truncate max-w-[110px]">Rechercher</span>
+                </button>
+
+                <!-- Bouton bascule rapide Thème (Sombre / Clair / Système) -->
+                <button onclick="cycleThemeMode()" id="header-theme-btn" title="Changer le thème (Sombre / Clair / Système)"
+                    class="px-2.5 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-xs font-extrabold text-white flex items-center gap-1.5 transition shadow-sm">
+                    <i id="header-theme-icon" class="ph-bold ph-moon text-base text-blue-400"></i>
+                    <span id="header-theme-label" class="hidden lg:inline">Sombre</span>
+                </button>
+
+                <!-- Bouton Simulateur d'imprévus -->
+                <button onclick="toggleImprevuDrawer()" id="nav-imprevu"
+                    class="px-2.5 sm:px-3.5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl bg-[#332711] hover:bg-[#423216] border border-[#D97706] text-xs sm:text-sm font-extrabold text-[#FDE047] flex items-center gap-1 sm:gap-1.5 transition shadow-sm">
+                    <i class="ph-bold ph-warning-circle text-base sm:text-lg"></i>
+                    <span class="hidden xs:inline sm:inline">Imprévus</span>
+                </button>
+
+                <!-- Profil utilisateur & points fidélité -->
+                <button onclick="navigateTo('profile')" class="flex items-center gap-2 sm:gap-2.5 bg-cinema-card hover:bg-cinema-elevated border border-white/20 rounded-xl sm:rounded-2xl p-1 sm:p-1.5 sm:pr-3 transition shadow-sm">
+                    <div id="header-avatar-box" class="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shrink-0"></div>
+                    <div class="hidden sm:block text-left">
+                        <p id="header-user-name" class="text-xs font-extrabold text-white leading-tight">Camille</p>
+                        <p class="text-[11px] font-extrabold text-amber-400 flex items-center gap-1">
+                            <i class="ph-fill ph-popcorn"></i> <span id="header-points">420</span> pts
+                        </p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Bandeau Tiroir : Simulateur d'imprévus & notifications -->
+    <section id="imprevu-drawer" class="hidden bg-[#181A22] border-b border-white/20 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-sm sm:text-base font-black tracking-wide uppercase text-amber-400">
+                        SIMULATEUR D'IMPRÉVUS &amp; NOTIFICATIONS
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
+                        Testez la résilience et les notifications de parcours spectateur.
+                    </p>
+                </div>
+                <button onclick="toggleImprevuDrawer(false)" aria-label="Fermer le simulateur"
+                    class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition shrink-0">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <button onclick="simulateImprevu('seance_complete')"
+                    class="bg-[#12141B] hover:bg-[#1E212D] border border-white/20 hover:border-orange-400 rounded-2xl p-4 text-left transition space-y-1.5 group">
+                    <div class="flex items-center gap-2 text-orange-400 font-extrabold text-sm">
+                        <i class="ph-bold ph-users-three text-lg"></i>
+                        <span>Séance complète</span>
+                    </div>
+                    <p class="text-xs text-slate-300">Propose une salle alternative</p>
+                </button>
+
+                <button onclick="simulateImprevu('seance_annulee')"
+                    class="bg-[#12141B] hover:bg-[#1E212D] border border-white/20 hover:border-rose-400 rounded-2xl p-4 text-left transition space-y-1.5 group">
+                    <div class="flex items-center gap-2 text-rose-400 font-extrabold text-sm">
+                        <i class="ph-bold ph-prohibit text-lg"></i>
+                        <span>Séance annulée</span>
+                    </div>
+                    <p class="text-xs text-slate-300">Report gratuit ou remboursement</p>
+                </button>
+
+                <button onclick="simulateImprevu('paiement_refuse')"
+                    class="bg-[#12141B] hover:bg-[#1E212D] border border-white/20 hover:border-pink-400 rounded-2xl p-4 text-left transition space-y-1.5 group">
+                    <div class="flex items-center gap-2 text-rose-400 font-extrabold text-sm">
+                        <i class="ph-bold ph-credit-card text-lg"></i>
+                        <span>Paiement refusé</span>
+                    </div>
+                    <p class="text-xs text-slate-300">Motif erreur + Réessayer</p>
+                </button>
+
+                <button onclick="simulateImprevu('film_16')"
+                    class="bg-[#12141B] hover:bg-[#1E212D] border border-white/20 hover:border-amber-400 rounded-2xl p-4 text-left transition space-y-1.5 group">
+                    <div class="flex items-center gap-2 text-amber-400 font-extrabold text-sm">
+                        <i class="ph-bold ph-warning text-lg"></i>
+                        <span>Film +16 ans</span>
+                    </div>
+                    <p class="text-xs text-slate-300">Vérification bienveillante</p>
+                </button>
+
+                <button onclick="simulateImprevu('hors_ligne')"
+                    class="bg-[#12141B] hover:bg-[#1E212D] border border-white/20 hover:border-cyan-400 rounded-2xl p-4 text-left transition space-y-1.5 group">
+                    <div class="flex items-center gap-2 text-cyan-400 font-extrabold text-sm">
+                        <i class="ph-bold ph-wifi-slash text-lg"></i>
+                        <span>Hors-ligne</span>
+                    </div>
+                    <p class="text-xs text-slate-300">Billet sans réseau</p>
+                </button>
+
+                <button onclick="simulateImprevu('rappel_h1')"
+                    class="bg-[#12141B] hover:bg-[#1E212D] border border-sky-400/50 hover:border-sky-400 rounded-2xl p-4 text-left transition space-y-1.5 group">
+                    <div class="flex items-center gap-2 text-sky-400 font-extrabold text-sm">
+                        <i class="ph-bold ph-bell-ringing text-lg"></i>
+                        <span>Rappel H-1</span>
+                    </div>
+                    <p class="text-xs text-slate-300">Il reste 1h avant la séance</p>
+                </button>
+
+                <button onclick="simulateImprevu('fin_seance_avis')"
+                    class="sm:col-span-2 bg-[#12141B] hover:bg-[#1E212D] border border-emerald-400/50 hover:border-emerald-400 rounded-2xl p-4 text-left transition space-y-1.5 group">
+                    <div class="flex items-center gap-2 text-emerald-400 font-extrabold text-sm">
+                        <i class="ph-fill ph-popcorn text-amber-400 text-lg"></i>
+                        <span>Fin de séance · Avis (+50 🍿 pts)</span>
+                    </div>
+                    <p class="text-xs text-slate-300">Invite à noter le film et gagner des points</p>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenu dynamique principal -->
+    <main id="app-main" class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-32"></main>
+
+    <!-- Barre de navigation inférieure flottante -->
+    <nav aria-label="Navigation principale" class="bottom-nav-shell opacity-100 fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-md rounded-full p-2 grid grid-cols-4 gap-1.5 shadow-2xl">
+        <button onclick="navigateTo('home')" id="bottom-nav-home" class="bottom-nav-btn !rounded-full">
+            <span class="nav-icon-slot">
+                <i class="ph-bold ph-film-slate text-blue-400"></i>
+            </span>
+            <span>Films</span>
+        </button>
+
+        <button onclick="navigateTo('tickets')" id="bottom-nav-tickets" class="bottom-nav-btn !rounded-full relative">
+            <span class="nav-icon-slot">
+                <i class="ph-bold ph-ticket text-emerald-400"></i>
+            </span>
+            <span>Billets</span>
+            <span id="mobile-ticket-badge" class="absolute top-1.5 right-3 min-w-[1.25rem] h-5 px-1.5 flex items-center justify-center text-[11px] rounded-full bg-emerald-400 text-slate-950 font-black shadow-md">0</span>
+        </button>
+
+        <button onclick="navigateTo('program')" id="bottom-nav-program" class="bottom-nav-btn !rounded-full">
+            <span class="nav-icon-slot">
+                <i class="ph-bold ph-calendar-blank text-amber-400"></i>
+            </span>
+            <span>Programme</span>
+        </button>
+
+        <button onclick="navigateTo('profile')" id="bottom-nav-profile" class="bottom-nav-btn !rounded-full">
+            <span class="nav-icon-slot">
+                <i class="ph-bold ph-user-circle text-purple-400"></i>
+            </span>
+            <span>Profil</span>
+        </button>
+    </nav>
+
+    <!-- Modale de Recherche Centrée avec Hauteur Fixe & Propositions en Temps Réel -->
+    <div id="search-modal" onclick="if(event.target === this) closeSearchModal()"
+        class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-start justify-center pt-14 sm:pt-24 px-4">
+        <div class="bg-cinema-card border-2 border-white/25 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl flex flex-col h-[500px] max-h-[82vh]">
+            <!-- En-tête fixe avec champ de recherche actif -->
+            <div class="p-4 sm:p-5 border-b border-white/20 bg-cinema-elevated flex items-center gap-3 shrink-0">
+                <i class="ph-bold ph-magnifying-glass text-2xl text-blue-400 shrink-0"></i>
+                <input type="text" id="spotlight-search-input"
+                    placeholder="Tapez le titre d'un film, un réalisateur, un acteur..."
+                    autocomplete="off"
+                    oninput="handleSpotlightInput(this.value)"
+                    class="w-full bg-transparent text-base sm:text-lg font-extrabold text-white placeholder-cinema-muted focus:outline-none">
+                <button type="button" id="spotlight-clear-btn" onclick="clearSpotlightSearch()"
+                    class="hidden px-2.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-extrabold text-white transition shrink-0">
+                    Effacer
+                </button>
+                <button type="button" onclick="closeSearchModal()" aria-label="Fermer la recherche"
+                    class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition shrink-0">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Zone dynamique des propositions instantanées -->
+            <div id="spotlight-results" class="p-4 sm:p-5 overflow-y-auto space-y-3 flex-1 min-h-0"></div>
+
+            <!-- Pied fixe de la fenêtre de recherche -->
+            <div class="px-4 sm:px-5 py-3 bg-cinema-elevated/80 border-t border-white/15 flex items-center justify-between text-xs font-bold text-cinema-muted shrink-0">
+                <span>Propositions instantanées · À l'affiche &amp; Prochainement</span>
+                <button type="button" onclick="applySearchFilterAndClose()"
+                    class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold transition">
+                    Filtrer la grille principale
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pied de page complet -->
+    <footer class="bg-cinema-card border-t border-white/20 mt-12 pb-32">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
+            <div class="bg-cinema-elevated border border-white/20 rounded-3xl p-5 sm:p-7 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-2">
+                    <div class="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-blue-300">
+                        <i class="ph-bold ph-armchair text-xl"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-white">1. Choisissez vos places</h3>
+                    <p class="text-xs sm:text-sm text-cinema-muted leading-relaxed">
+                        Sélectionnez votre tarif (plein tarif, étudiant, senior) pour figer votre prix, puis cliquez sur vos sièges disponibles en bleu clair.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-300">
+                        <i class="ph-bold ph-popcorn text-xl"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-white">2. Confiserie &amp; Récompenses</h3>
+                    <p class="text-xs sm:text-sm text-cinema-muted leading-relaxed">
+                        Ajoutez popcorns et boissons, puis cumulez des points fidélité <i class="ph-fill ph-popcorn text-amber-400 inline text-xs"></i> à chaque réservation ou avis publié.
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300">
+                        <i class="ph-bold ph-qr-code text-xl"></i>
+                    </div>
+                    <h3 class="text-base font-extrabold text-white">3. Billet QR Code instantané</h3>
+                    <p class="text-xs sm:text-sm text-cinema-muted leading-relaxed">
+                        Retrouvez votre billet muni d’un QR Code accessible même en mode hors-ligne pour entrer directement en salle.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-white/20 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 text-xs text-cinema-muted">
+                <div class="space-y-1">
+                    <p class="font-extrabold text-white">© 2026 Ciné Lumière — Multiplexe 15 Salles · Tous droits réservés.</p>
+                    <p>Exploitation cinématographique agréée CNC · 24 Avenue des Lumières, 75000 Paris · Contact : accueil@cinelumiere.fr</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-4 font-bold">
+                    <button onclick="showLegalModal('Mentions Légales', 'Ciné Lumière SAS au capital de 150 000 € — RCS Paris B 812 459 301 — Directeur de publication : Direction Ciné Lumière. Équipement projection Laser 4K, IMAX et son Dolby Atmos dans nos 15 salles.')" class="hover:text-white transition">Mentions légales</button>
+                    <button onclick="showLegalModal('Conditions Générales de Vente (CGV)', 'Les billets réservés en ligne sont valables uniquement pour la séance, la salle et la date indiquées.')" class="hover:text-white transition">CGV</button>
+                    <button onclick="showLegalModal('Confidentialité & RGPD', 'Vos données personnelles et vos billets QR Code sont conservés de façon sécurisée et ne sont jamais revendus à des tiers.')" class="hover:text-white transition">Confidentialité &amp; RGPD</button>
+                    <button onclick="showLegalModal('Accessibilité PMR & Malentendants', 'Les 15 salles du multiplexe Ciné Lumière sont intégralement accessibles aux personnes à mobilité réduite et équipées de boucles magnétiques et audiodescription.')" class="hover:text-white transition">Accessibilité</button>
+                    <button onclick="navigateTo('guide')" class="text-emerald-300 hover:text-emerald-200 font-extrabold flex items-center gap-1 transition">
+                        <i class="ph-bold ph-book-open"></i> Guide de l'application
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Boîte de dialogue modale personnalisée -->
+    <div id="custom-modal" onclick="if(event.target === this) closeModal()" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-cinema-card border-2 border-white/25 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between">
+                <h3 id="modal-title" class="text-lg font-extrabold text-white">Information</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+                    <i class="ph-bold ph-x"></i>
+                </button>
+            </div>
+            <p id="modal-body" class="text-sm text-slate-200 leading-relaxed"></p>
+            <div class="pt-2 flex justify-end">
+                <button onclick="closeModal()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-extrabold transition">Compris</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de notification rapide -->
+    <div id="toast-banner" class="pointer-events-none fixed top-24 right-4 z-50 opacity-0 translate-y-2 transition-all duration-300">
+        <div class="bg-cinema-elevated border-2 border-white/25 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs sm:text-sm font-extrabold">
+            <i class="ph-fill ph-sparkle text-emerald-400 text-base"></i>
+            <span id="toast-text">Notification</span>
+        </div>
+    </div>
+
+    <script>
+        /* Données des films à l'affiche */
+        const MOVIES = [
+            {
+                id: 'dune-2',
+                title: 'Dune : Deuxième Partie',
+                genre: 'Science-Fiction',
+                duration: '2h 46min',
+                rating: '4.9',
+                ageRating: 'Tous publics',
+                ageBadgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+                director: 'Denis Villeneuve',
+                cast: ['Timothée Chalamet', 'Zendaya', 'Rebecca Ferguson'],
+                castProfiles: [
+                    { name: 'Timothée Chalamet', role: 'Paul Atréides', img: 'https://image.tmdb.org/t/p/w185/BE2sdjpgsa2rNTFa66f7upkaOP.jpg' },
+                    { name: 'Zendaya', role: 'Chani', img: 'https://image.tmdb.org/t/p/w185/so3GQUuvSrDGV3432989e834406.jpg' },
+                    { name: 'Rebecca Ferguson', role: 'Dame Jessica', img: 'https://image.tmdb.org/t/p/w185/lJloTOheuQSirSLXNA3JHsrMNfH.jpg' }
+                ],
+                hall: 'Salle 01 · IMAX Laser',
+                isNew: true,
+                views: 14800,
+                img: 'https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg',
+                fallbackBg: 'from-amber-700 to-stone-900',
+                synopsis: 'Paul Atréides s’unit à Chani et aux Fremen pour mener la révolte contre ceux qui ont anéanti sa famille. Face à un choix entre l’amour de sa vie et le destin de l’univers connu, il lutte pour empêcher un futur terrible.',
+                showtimes: [
+                    { time: '14:00', format: 'VF · IMAX Laser', hall: 'Salle 01' },
+                    { time: '17:45', format: 'VOSTFR · IMAX Laser', hall: 'Salle 01' },
+                    { time: '21:15', format: 'VOSTFR · Dolby Atmos', hall: 'Salle 02' }
+                ]
+            },
+            {
+                id: 'vice-versa-2',
+                title: 'Vice-Versa 2',
+                genre: 'Animé',
+                duration: '1h 36min',
+                rating: '4.8',
+                ageRating: 'Tous publics',
+                ageBadgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+                director: 'Kelsey Mann',
+                cast: ['Charlotte Le Bon', 'Pierre Niney', 'Gilles Lellouche'],
+                castProfiles: [
+                    { name: 'Charlotte Le Bon', role: 'Joie (VF)', img: 'https://image.tmdb.org/t/p/w185/346785678901234567890123456.jpg' },
+                    { name: 'Pierre Niney', role: 'Peur (VF)', img: 'https://image.tmdb.org/t/p/w185/2b2t5y8z7x6w5v4u3t2s1r0q9p8.jpg' },
+                    { name: 'Gilles Lellouche', role: 'Colère (VF)', img: 'https://image.tmdb.org/t/p/w185/4c3d2e1f0a9b8c7d6e5f4a3b2c1.jpg' }
+                ],
+                hall: 'Salle 05 · Dolby Atmos',
+                isNew: true,
+                views: 16200,
+                img: 'https://image.tmdb.org/t/p/w500/vpnVM9B6NMmQpWeZvzLvDESb2QY.jpg',
+                fallbackBg: 'from-indigo-600 to-purple-900',
+                synopsis: 'Fraîchement diplômée du collège, Riley voit son quartier général cérébral chamboulé par l’arrivée inattendue de nouvelles émotions : Anxiété, Envie, Ennui et Embarras !',
+                showtimes: [
+                    { time: '11:00', format: 'VF · Séance Enfants', hall: 'Salle 05' },
+                    { time: '14:15', format: 'VF · Dolby Atmos', hall: 'Salle 05' },
+                    { time: '16:45', format: 'VF · Salle Famille', hall: 'Salle 08' }
+                ]
+            },
+            {
+                id: 'oppenheimer',
+                title: 'Oppenheimer',
+                genre: 'Drame',
+                duration: '3h 00min',
+                rating: '4.9',
+                ageRating: 'Tous publics',
+                ageBadgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+                director: 'Christopher Nolan',
+                cast: ['Cillian Murphy', 'Emily Blunt', 'Robert Downey Jr.'],
+                castProfiles: [
+                    { name: 'Cillian Murphy', role: 'J.R. Oppenheimer', img: 'https://image.tmdb.org/t/p/w185/dm6V24NjjvjMiCtbMkc8Y2WPm2e.jpg' },
+                    { name: 'Emily Blunt', role: 'Kitty Oppenheimer', img: 'https://image.tmdb.org/t/p/w185/5nCSG5TL1bP1geD8aaBfaLnLLCD.jpg' },
+                    { name: 'Robert Downey Jr.', role: 'Lewis Strauss', img: 'https://image.tmdb.org/t/p/w185/5qHNjhtjMD4YWH3UP0rm4tKwxCL.jpg' }
+                ],
+                hall: 'Salle 03 · 70mm',
+                isNew: false,
+                views: 11400,
+                img: 'https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg',
+                fallbackBg: 'from-orange-800 to-zinc-950',
+                synopsis: 'Le destin fascinant du physicien J. Robert Oppenheimer et son rôle déterminant dans le développement de la première arme nucléaire au sein du projet Manhattan.',
+                showtimes: [
+                    { time: '15:30', format: 'VOSTFR · 70mm', hall: 'Salle 03' },
+                    { time: '20:00', format: 'VOSTFR · Dolby Atmos', hall: 'Salle 03' }
+                ]
+            },
+            {
+                id: 'spider-verse',
+                title: 'Spider-Man : Across the Spider-Verse',
+                genre: 'Animé',
+                duration: '2h 20min',
+                rating: '4.9',
+                ageRating: 'Tous publics',
+                ageBadgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+                director: 'Joaquim Dos Santos',
+                cast: ['Shameik Moore', 'Hailee Steinfeld', 'Oscar Isaac'],
+                castProfiles: [
+                    { name: 'Shameik Moore', role: 'Miles Morales', img: 'https://image.tmdb.org/t/p/w185/uJNaSTsfBOvtFWsPP23zNthknsB.jpg' },
+                    { name: 'Hailee Steinfeld', role: 'Gwen Stacy', img: 'https://image.tmdb.org/t/p/w185/dxSDWkiVaC6JYjrV3XRAZI7HOSS.jpg' },
+                    { name: 'Oscar Isaac', role: 'Miguel O’Hara', img: 'https://image.tmdb.org/t/p/w185/dW5U5yrIIPmMjRThR9KT2xH6nTz.jpg' }
+                ],
+                hall: 'Salle 07 · Laser 4K',
+                isNew: false,
+                views: 9850,
+                img: 'https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg',
+                fallbackBg: 'from-rose-700 to-slate-950',
+                synopsis: 'Miles Morales est propulsé à travers le Multivers où il rencontre une équipe de Spider-Héros chargée d’en protéger l’existence même.',
+                showtimes: [
+                    { time: '13:45', format: 'VF · Séance Enfants', hall: 'Salle 07' },
+                    { time: '17:00', format: 'VF · Laser 4K', hall: 'Salle 11' },
+                    { time: '20:30', format: 'VOSTFR · Laser 4K', hall: 'Salle 07' }
+                ]
+            },
+            {
+                id: 'the-batman',
+                title: 'The Batman',
+                genre: 'Action',
+                duration: '2h 56min',
+                rating: '4.7',
+                ageRating: '-16 ans',
+                ageBadgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+                director: 'Matt Reeves',
+                cast: ['Robert Pattinson', 'Zoë Kravitz', 'Paul Dano'],
+                castProfiles: [
+                    { name: 'Robert Pattinson', role: 'Bruce Wayne', img: 'https://image.tmdb.org/t/p/w185/6RVxNlNmc0D1536835699166865.jpg' },
+                    { name: 'Zoë Kravitz', role: 'Selina Kyle', img: 'https://image.tmdb.org/t/p/w185/ti6589012345678901234567890.jpg' },
+                    { name: 'Paul Dano', role: 'Edward Nashton', img: 'https://image.tmdb.org/t/p/w185/tH1234567890123456789012345.jpg' }
+                ],
+                hall: 'Salle 12 · Dolby Vision',
+                isNew: false,
+                views: 8600,
+                img: 'https://image.tmdb.org/t/p/w500/74xTEgt7R36Fpooo50r9T25onhq.jpg',
+                fallbackBg: 'from-red-900 to-black',
+                synopsis: 'Interdit aux moins de 16 ans. Lorsqu’un tueur s’en prend à l’élite de Gotham par une série de machinations sadiques, une piste d’indices cryptiques envoie le plus grand détective du monde dans les bas-fonds.',
+                showtimes: [
+                    { time: '16:15', format: 'VF · Dolby Vision', hall: 'Salle 12' },
+                    { time: '20:45', format: 'VOSTFR · Dolby Atmos', hall: 'Salle 14' }
+                ]
+            },
+            {
+                id: 'interstellar',
+                title: 'Interstellar (Reprise 10 ans)',
+                genre: 'Science-Fiction',
+                duration: '2h 49min',
+                rating: '5.0',
+                ageRating: 'Tous publics',
+                ageBadgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+                director: 'Christopher Nolan',
+                cast: ['Matthew McConaughey', 'Anne Hathaway', 'Jessica Chastain'],
+                castProfiles: [
+                    { name: 'Matthew McConaughey', role: 'Cooper', img: 'https://image.tmdb.org/t/p/w185/wJiGedOCZhwMx9DezY8uwbNxmAY.jpg' },
+                    { name: 'Anne Hathaway', role: 'Amelia Brand', img: 'https://image.tmdb.org/t/p/w185/tLelKoPNiyJCSEtQTz1FGv4TLGc.jpg' },
+                    { name: 'Jessica Chastain', role: 'Murph', img: 'https://image.tmdb.org/t/p/w185/lodMzLuffpIdaBh82xr2KvjfQn0.jpg' }
+                ],
+                hall: 'Salle 01 · IMAX',
+                isNew: true,
+                views: 12900,
+                img: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+                fallbackBg: 'from-blue-900 to-slate-950',
+                synopsis: 'Alors que la Terre se meurt, une équipe d’explorateurs franchit un trou de ver récemment découvert afin de trouver un nouveau foyer pour l’humanité.',
+                showtimes: [
+                    { time: '14:30', format: 'VOSTFR · IMAX', hall: 'Salle 09' },
+                    { time: '19:45', format: 'VOSTFR · IMAX Laser', hall: 'Salle 01' }
+                ]
+            }
+        ];
+
+        const COMING_SOON = [
+            {
+                id: 'gladiator-2',
+                title: 'Gladiator II',
+                director: 'Ridley Scott',
+                cast: ['Paul Mescal', 'Pedro Pascal', 'Denzel Washington'],
+                date: 'Sortie Mercredi prochain',
+                releaseDay: 'Mercredi',
+                duration: '2h 28min',
+                ageRating: '+12',
+                ageBadgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+                genre: 'Action · Péplum',
+                hall: 'Salle 01 & 04 · IMAX',
+                img: 'https://image.tmdb.org/t/p/w500/2cxhvwyEwRlysAmRH4iodkvo0z5.jpg',
+                fallbackBg: 'from-amber-800 to-stone-950',
+                synopsis: 'Des années après avoir assisté à la mort du héros vénéré Maximus aux mains de son oncle, Lucius est contraint d’entrer dans le Colisée après que sa patrie a été conquise par les empereurs tyranniques qui dirigent désormais Rome d’une main de fer.',
+                showtimes: [
+                    { time: '14:30', format: 'VF · IMAX Laser', hall: 'Salle 01' },
+                    { time: '18:15', format: 'VOSTFR · IMAX', hall: 'Salle 01' },
+                    { time: '21:15', format: 'VF · Dolby Atmos', hall: 'Salle 04' }
+                ]
+            },
+            {
+                id: 'mufasa-roi-lion',
+                title: 'Mufasa : Le Roi Lion',
+                director: 'Barry Jenkins',
+                cast: ['Aaron Pierre', 'Kelvin Harrison Jr.', 'Mads Mikkelsen'],
+                date: 'Bientôt en salle · Vendredi',
+                releaseDay: 'Vendredi',
+                duration: '1h 58min',
+                ageRating: 'Tous publics',
+                ageBadgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+                genre: 'Animé · Famille',
+                hall: 'Salle 10 & 15 · Dolby Atmos',
+                img: 'https://image.tmdb.org/t/p/w500/jbOSUAWMGzGL1L4EaUF8K6zYFo7.jpg',
+                fallbackBg: 'from-orange-600 to-amber-950',
+                synopsis: 'Rafiki raconte la légende de Mufasa à la jeune lionne Kiara, fille de Simba et Nala. L’histoire présente Mufasa comme un lionceau orphelin, perdu et seul jusqu’à ce qu’il fasse la rencontre de Taka, héritier d’une lignée royale.',
+                showtimes: [
+                    { time: '11:00', format: 'VF · Famille', hall: 'Salle 15' },
+                    { time: '14:15', format: 'VF · Dolby Atmos', hall: 'Salle 10' },
+                    { time: '17:00', format: 'VF · 3D', hall: 'Salle 10' }
+                ]
+            }
+        ];
+
+        const WEEK_DAYS = [
+            { id: 'auj', label: 'Aujourd’hui', short: 'Auj.', dateNum: '15 Nov', shiftMinutes: 0 },
+            { id: 'dem', label: 'Demain', short: 'Lun.', dateNum: '16 Nov', shiftMinutes: 15 },
+            { id: 'mar', label: 'Mardi', short: 'Mar.', dateNum: '17 Nov', shiftMinutes: -15 },
+            { id: 'mer', label: 'Mercredi', short: 'Mer.', dateNum: '18 Nov', shiftMinutes: 30 },
+            { id: 'jeu', label: 'Jeudi', short: 'Jeu.', dateNum: '19 Nov', shiftMinutes: 0 },
+            { id: 'ven', label: 'Vendredi', short: 'Ven.', dateNum: '20 Nov', shiftMinutes: 45 },
+            { id: 'sam', label: 'Samedi', short: 'Sam.', dateNum: '21 Nov', shiftMinutes: -30 }
+        ];
+
+        function getShowtimesForDay(baseShowtimes, dayId) {
+            const day = WEEK_DAYS.find(d => d.id === dayId) || WEEK_DAYS[0];
+            if (day.shiftMinutes === 0) return baseShowtimes;
+            return baseShowtimes.map((st, idx) => {
+                const [h, m] = st.time.split(':').map(Number);
+                const total = Math.max(10 * 60, Math.min(23 * 60 + 30, h * 60 + m + day.shiftMinutes + idx * 5));
+                const nh = String(Math.floor(total / 60)).padStart(2, '0');
+                const nm = String(total % 60).padStart(2, '0');
+                return { ...st, time: `${nh}:${nm}` };
+            });
+        }
+
+        const TARIFS = [
+            { id: 'plein', label: 'Plein Tarif', price: 13.50, desc: 'Séance standard & confort' },
+            { id: 'etudiant', label: 'Étudiant / -26 ans', price: 9.20, desc: 'Sur présentation justificatif' },
+            { id: 'enfant', label: 'Enfant (-14 ans)', price: 7.50, desc: 'Idéal films animés & famille' },
+            { id: 'senior', label: 'Senior (+65 ans)', price: 10.50, desc: 'Valable à toutes les séances' }
+        ];
+
+        const AVATAR_CHOICES = [
+            { id: 'chalamet', label: 'Timothée Chalamet', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Timoth%C3%A9e_Chalamet-63482_%28cropped%29.jpg/220px-Timoth%C3%A9e_Chalamet-63482_%28cropped%29.jpg' },
+            { id: 'zendaya', label: 'Zendaya', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Zendaya_-_2019_by_Glenn_Francis.jpg/220px-Zendaya_-_2019_by_Glenn_Francis.jpg' },
+            { id: 'murphy', label: 'Cillian Murphy', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Cillian_Murphy_Press_Conference_The_Party_Berlinale_2017_02cr.jpg/220px-Cillian_Murphy_Press_Conference_The_Party_Berlinale_2017_02cr.jpg' },
+            { id: 'blunt', label: 'Emily Blunt', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Emily_Blunt_SAG_Awards_2019.png/220px-Emily_Blunt_SAG_Awards_2019.png' },
+            { id: 'pattinson', label: 'Robert Pattinson', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/Robert_Pattinson_Premiere_of_The_Lost_City_of_Z_at_Zoo_Palast_Berlinale_2017_02.jpg/220px-Robert_Pattinson_Premiere_of_The_Lost_City_of_Z_at_Zoo_Palast_Berlinale_2017_02.jpg' },
+            { id: 'hathaway', label: 'Anne Hathaway', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Anne_Hathaway_at_Berlinale_2023_%28cropped%29.jpg/220px-Anne_Hathaway_at_Berlinale_2023_%28cropped%29.jpg' },
+            { id: 'steinfeld', label: 'Hailee Steinfeld', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Hailee_Steinfeld_by_Gage_Skidmore.jpg/220px-Hailee_Steinfeld_by_Gage_Skidmore.jpg' },
+            { id: 'isaac', label: 'Oscar Isaac', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Oscar_Isaac_by_Gage_Skidmore_2.jpg/220px-Oscar_Isaac_by_Gage_Skidmore_2.jpg' },
+            { id: 'niney', label: 'Pierre Niney', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Pierre_Niney_C%C3%A9sar_2015.jpg/220px-Pierre_Niney_C%C3%A9sar_2015.jpg' },
+            { id: 'chastain', label: 'Jessica Chastain', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Jessica_Chastain_Cannes_2016_4_%28cropped%29.jpg/220px-Jessica_Chastain_Cannes_2016_4_%28cropped%29.jpg' }
+        ];
+
+        const OCCUPIED_SEATS = ['B4', 'B5', 'C3', 'C4', 'D6', 'D7', 'E5'];
+        const PMR_SEATS = ['A1', 'A9'];
+
+        const state = {
+            view: 'home',
+            themeMode: 'dark',
+            imprevuOpen: false,
+            offlineSimulated: false,
+            reviewBonus50: false,
+            selectedDay: 'auj',
+            selectedGenre: 'Tous',
+            sortBy: 'recommended',
+            searchQuery: '',
+            popularCollapsibleOpen: true,
+            selectedMovieId: 'dune-2',
+            selectedShowtime: null,
+            selectedTarifId: 'plein',
+            selectedSeats: [],
+            snackTab: 'popcorn',
+            snackFlavor: 'Sucré',
+            snackSize: 'Petit',
+            cartSnacks: [],
+            paymentMethod: 'wallet',
+            morePaymentsOpen: false,
+            user: {
+                name: 'Camille Laurent',
+                points: 420,
+                avatarId: 'zendaya'
+            },
+            tickets: [
+                {
+                    code: 'CL-84920',
+                    movieTitle: 'Dune : Deuxième Partie',
+                    date: 'Aujourd’hui 15 Nov',
+                    time: '17:45',
+                    hall: 'Salle 01 · IMAX Laser',
+                    seats: ['C4', 'C5'],
+                    tarif: 'Plein Tarif',
+                    total: '27,00 €'
+                }
+            ],
+            reviews: [
+                { author: 'Thomas V.', movie: 'Dune : Deuxième Partie', rating: 5, text: 'Une claque visuelle et sonore absolue en IMAX !' },
+                { author: 'Sarah B.', movie: 'Vice-Versa 2', rating: 5, text: 'Génial avec les enfants, un rire du début à la fin.' }
+            ]
+        };
+
+        /* =====================================================================
+           SYNCHRONISATION DYNAMIQUE DES DEUX EMPLACEMENTS DE RECHERCHE AU SCROLL
+           ===================================================================== */
+        function syncSearchPlacement() {
+            const headerBtn = document.getElementById('header-search-btn');
+            const headerLabel = document.getElementById('header-search-label');
+            const inlineContainer = document.getElementById('inline-search-container');
+            const mainHeader = document.getElementById('main-header');
+
+            if (!headerBtn) return;
+
+            if (headerLabel) {
+                headerLabel.textContent = state.searchQuery.trim()
+                    ? state.searchQuery.trim()
+                    : 'Rechercher';
+            }
+
+            // Sur une vue autre que l'accueil, la recherche reste accessible dans la barre supérieure
+            if (state.view !== 'home' || !inlineContainer) {
+                headerBtn.classList.remove('is-docked-hidden');
+                headerBtn.classList.add('is-docked-visible');
+                return;
+            }
+
+            const headerHeight = mainHeader ? mainHeader.offsetHeight : 72;
+            const rect = inlineContainer.getBoundingClientRect();
+            const isTopAtPage = window.scrollY <= 8;
+            const isInlineVisible = isTopAtPage || (rect.bottom > headerHeight + 8);
+
+            if (isInlineVisible) {
+                // Tout en haut / barre principale visible : garde son emplacement actuel et disparaît en haut
+                headerBtn.classList.remove('is-docked-visible');
+                headerBtn.classList.add('is-docked-hidden');
+                inlineContainer.classList.remove('is-scrolled-away');
+            } else {
+                // L'utilisateur descend dans la page : la barre de recherche reprend sa place tout en haut
+                headerBtn.classList.remove('is-docked-hidden');
+                headerBtn.classList.add('is-docked-visible');
+                inlineContainer.classList.add('is-scrolled-away');
+            }
+        }
+
+        window.addEventListener('scroll', syncSearchPlacement, { passive: true });
+        window.addEventListener('resize', syncSearchPlacement, { passive: true });
+
+        /* =====================================================================
+           LOGIQUE DE RECHERCHE CENTRÉE AVEC PROPOSITIONS EN TEMPS RÉEL
+           ===================================================================== */
+        function openSearchModal() {
+            const modal = document.getElementById('search-modal');
+            const input = document.getElementById('spotlight-search-input');
+            if (!modal || !input) return;
+            if (modal.classList.contains('hidden')) {
+                try {
+                    history.pushState(buildHistorySnapshot(state.view, { modal: 'search' }), '', `#${state.view}`);
+                    appHistoryDepth++;
+                } catch (e) {}
+            }
+            modal.classList.remove('hidden');
+            input.value = state.searchQuery;
+            updateSpotlightSuggestions(state.searchQuery);
+            setTimeout(() => {
+                input.focus();
+                input.setSelectionRange(input.value.length, input.value.length);
+            }, 20);
+        }
+
+        function closeSearchModal(fromPopstate = false) {
+            const modal = document.getElementById('search-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
+            modal.classList.add('hidden');
+            if (!fromPopstate && history.state && history.state.modal === 'search') {
+                history.back();
+            }
+        }
+
+        function clearSpotlightSearch() {
+            state.searchQuery = '';
+            const input = document.getElementById('spotlight-search-input');
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
+            updateSpotlightSuggestions('');
+            syncSearchPlacement();
+            if (state.view === 'home') render();
+        }
+
+        function applySearchFilterAndClose() {
+            const modal = document.getElementById('search-modal');
+            if (modal) modal.classList.add('hidden');
+            if (state.view !== 'home') {
+                navigateTo('home');
+            } else {
+                render();
+            }
+        }
+
+        function handleSpotlightInput(value) {
+            state.searchQuery = value;
+            updateSpotlightSuggestions(value);
+            syncSearchPlacement();
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function updateSpotlightSuggestions(rawQuery) {
+            const resultsBox = document.getElementById('spotlight-results');
+            const clearBtn = document.getElementById('spotlight-clear-btn');
+            if (!resultsBox) return;
+
+            const q = (rawQuery || '').trim().toLowerCase();
+            if (clearBtn) clearBtn.classList.toggle('hidden', q.length === 0);
+
+            const activeDayObj = WEEK_DAYS.find(d => d.id === state.selectedDay) || WEEK_DAYS[0];
+
+            const allCatalog = [
+                ...MOVIES.map(m => ({ ...m, isComingSoon: false })),
+                ...COMING_SOON.map(c => ({ ...c, isComingSoon: true }))
+            ];
+
+            const matches = q.length === 0
+                ? allCatalog.slice(0, 5)
+                : allCatalog.filter(item =>
+                    item.title.toLowerCase().includes(q) ||
+                    item.director.toLowerCase().includes(q) ||
+                    item.genre.toLowerCase().includes(q) ||
+                    item.cast.some(actor => actor.toLowerCase().includes(q))
+                );
+
+            if (matches.length === 0) {
+                resultsBox.innerHTML = `
+                    <div class="py-10 text-center space-y-2">
+                        <i class="ph-bold ph-film-slate text-4xl text-cinema-muted"></i>
+                        <p class="text-sm font-extrabold text-white">Aucun film trouvé pour « ${escapeHtml(rawQuery)} »</p>
+                        <p class="text-xs text-cinema-muted">Essayez avec un autre titre, réalisateur (ex. Nolan, Villeneuve) ou genre.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const headerLabel = q.length === 0
+                ? 'Suggestions populaires & à l’affiche :'
+                : `${matches.length} proposition${matches.length > 1 ? 's' : ''} trouvée${matches.length > 1 ? 's' : ''} :`;
+
+            resultsBox.innerHTML = `
+                <p class="text-xs font-extrabold uppercase tracking-wider text-cinema-muted mb-2">${headerLabel}</p>
+                <div class="space-y-2.5">
+                    ${matches.map(item => {
+                        const dayShowtimes = item.isComingSoon ? item.showtimes : getShowtimesForDay(item.showtimes, state.selectedDay);
+                        const detailAction = item.isComingSoon
+                            ? `openComingSoonDetail('${item.id}')`
+                            : `openMovieDetail('${item.id}')`;
+
+                        return `
+                        <div class="bg-cinema-elevated hover:bg-cinema-elevated/90 border border-white/20 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition">
+                            <div onclick="${detailAction}" class="flex items-center gap-3.5 cursor-pointer min-w-0 flex-1 group">
+                                <div class="w-12 h-16 rounded-xl overflow-hidden shrink-0 bg-gradient-to-br ${item.fallbackBg} border border-white/15">
+                                    <img src="${item.img}" alt="${escapeHtml(item.title)}" onerror="this.style.display='none'" class="w-full h-full object-cover">
+                                </div>
+                                <div class="min-w-0 space-y-1">
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <span class="text-sm font-black text-white group-hover:text-blue-400 transition truncate">${escapeHtml(item.title)}</span>
+                                        ${item.isComingSoon
+                                            ? '<span class="px-2 py-0.5 rounded-md bg-indigo-600 text-white text-[10px] font-extrabold">Bientôt</span>'
+                                            : '<span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold">À l’affiche</span>'}
+                                        <span class="px-2 py-0.5 rounded-md border text-[10px] font-extrabold ${item.ageBadgeColor}">${item.ageRating}</span>
+                                    </div>
+                                    <p class="text-xs text-cinema-muted truncate">De ${escapeHtml(item.director)} · ${escapeHtml(item.genre)} · ${item.duration}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+                                ${dayShowtimes.slice(0, 2).map(st => `
+                                    <button type="button"
+                                        onclick="startBooking('${item.id}', '${st.time}', '${st.format}', '${st.hall}', '${item.isComingSoon ? item.releaseDay + ' prochain' : activeDayObj.label + ' ' + activeDayObj.dateNum}')"
+                                        class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold transition shadow">
+                                        ${st.time}
+                                    </button>
+                                `).join('')}
+                                <button type="button" onclick="${detailAction}"
+                                    class="px-3 py-1.5 rounded-xl bg-cinema-card hover:bg-white/15 border border-white/20 text-xs font-extrabold text-white transition">
+                                    Fiche
+                                </button>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Raccourcis clavier (Échap pour fermer les modales, Ctrl+K / Cmd+K pour ouvrir la recherche)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                openSearchModal();
+            } else if (e.key === 'Escape') {
+                closeSearchModal();
+                closeModal();
+            }
+        });
+
+        function triggerHaptic(type, message) {
+            const banner = document.getElementById('toast-banner');
+            const text = document.getElementById('toast-text');
+            if (text && banner) {
+                text.textContent = message;
+                banner.classList.remove('opacity-0', 'translate-y-2');
+                banner.classList.add('opacity-100', 'translate-y-0');
+                setTimeout(() => {
+                    banner.classList.remove('opacity-100', 'translate-y-0');
+                    banner.classList.add('opacity-0', 'translate-y-2');
+                }, 2800);
+            }
+        }
+
+        function applyTheme(mode, notify = false) {
+            state.themeMode = mode;
+            const htmlEl = document.documentElement;
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const shouldBeDark = mode === 'dark' || (mode === 'system' && prefersDark);
+
+            htmlEl.classList.toggle('dark', shouldBeDark);
+
+            const iconEl = document.getElementById('header-theme-icon');
+            const labelEl = document.getElementById('header-theme-label');
+            const labels = { dark: 'Sombre', light: 'Clair', system: 'Système' };
+            const icons = {
+                dark: 'ph-bold ph-moon text-base text-blue-400',
+                light: 'ph-bold ph-sun text-base text-amber-500',
+                system: 'ph-bold ph-desktop text-base text-emerald-400'
+            };
+
+            if (iconEl) iconEl.className = icons[mode];
+            if (labelEl) labelEl.textContent = labels[mode];
+
+            if (notify) {
+                triggerHaptic('tic', `Apparence : mode ${labels[mode]}`);
+            }
+            if (state.view === 'profile') render();
+        }
+
+        function cycleThemeMode() {
+            const order = ['dark', 'light', 'system'];
+            const next = order[(order.indexOf(state.themeMode) + 1) % order.length];
+            applyTheme(next, true);
+        }
+
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                if (state.themeMode === 'system') applyTheme('system', false);
+            });
+        }
+
+        function showLegalModal(title, body) {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').textContent = body;
+            if (modal && modal.classList.contains('hidden')) {
+                try {
+                    history.pushState(buildHistorySnapshot(state.view, { modal: 'legal' }), '', `#${state.view}`);
+                    appHistoryDepth++;
+                } catch (e) {}
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal(fromPopstate = false) {
+            const modal = document.getElementById('custom-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
+            modal.classList.add('hidden');
+            if (!fromPopstate && history.state && history.state.modal === 'legal') {
+                history.back();
+            }
+        }
+
+        /* =====================================================================
+           GESTION COMPLÈTE DE L'HISTORIQUE (Bouton Précédent Souris & Retour)
+           ===================================================================== */
+        const VALID_VIEWS = ['home', 'detail', 'coming-detail', 'seats', 'snacks', 'payment', 'tickets', 'program', 'guide', 'profile'];
+        let appHistoryDepth = 0;
+
+        function buildHistorySnapshot(viewName, extra = {}) {
+            return {
+                app: 'cine-lumiere',
+                view: viewName,
+                movieId: state.selectedMovieId,
+                selectedShowtime: state.selectedShowtime ? { ...state.selectedShowtime } : null,
+                selectedDay: state.selectedDay,
+                selectedGenre: state.selectedGenre,
+                ...extra
+            };
+        }
+
+        function goBackView(fallbackView = 'home') {
+            if (appHistoryDepth > 0) {
+                history.back();
+            } else {
+                navigateTo(fallbackView, true);
+            }
+        }
+
+        function navigateTo(v, pushHistory = true) {
+            const targetView = VALID_VIEWS.includes(v) ? v : 'home';
+            const prevSnapshot = history.state;
+            state.view = targetView;
+
+            // Fermeture silencieuse d'éventuelles modales lors d'un changement de vue
+            const searchModal = document.getElementById('search-modal');
+            if (searchModal) searchModal.classList.add('hidden');
+            const customModal = document.getElementById('custom-modal');
+            if (customModal) customModal.classList.add('hidden');
+
+            if (pushHistory) {
+                const isSameEntry = prevSnapshot &&
+                    prevSnapshot.app === 'cine-lumiere' &&
+                    !prevSnapshot.modal &&
+                    prevSnapshot.view === targetView &&
+                    prevSnapshot.movieId === state.selectedMovieId &&
+                    JSON.stringify(prevSnapshot.selectedShowtime || null) === JSON.stringify(state.selectedShowtime || null);
+
+                if (!isSameEntry) {
+                    try {
+                        history.pushState(buildHistorySnapshot(targetView), '', `#${targetView}`);
+                        appHistoryDepth++;
+                    } catch (e) {}
+                }
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            render();
+        }
+
+        window.addEventListener('popstate', (event) => {
+            const searchModal = document.getElementById('search-modal');
+            const customModal = document.getElementById('custom-modal');
+            const st = event.state;
+
+            if (searchModal && !searchModal.classList.contains('hidden') && (!st || st.modal !== 'search')) {
+                searchModal.classList.add('hidden');
+            }
+            if (customModal && !customModal.classList.contains('hidden') && (!st || st.modal !== 'legal')) {
+                customModal.classList.add('hidden');
+            }
+
+            if (st && st.modal === 'search') {
+                if (searchModal) {
+                    searchModal.classList.remove('hidden');
+                    updateSpotlightSuggestions(state.searchQuery);
+                }
+                return;
+            }
+            if (st && st.modal === 'legal' && customModal) {
+                customModal.classList.remove('hidden');
+                return;
+            }
+
+            if (appHistoryDepth > 0) {
+                appHistoryDepth--;
+            }
+
+            if (st && st.view && VALID_VIEWS.includes(st.view)) {
+                state.view = st.view;
+                if (st.movieId) state.selectedMovieId = st.movieId;
+                if ('selectedShowtime' in st) state.selectedShowtime = st.selectedShowtime;
+                if (st.selectedDay) state.selectedDay = st.selectedDay;
+                if (st.selectedGenre) state.selectedGenre = st.selectedGenre;
+            } else {
+                const hashView = (window.location.hash || '').replace('#', '').trim();
+                state.view = VALID_VIEWS.includes(hashView) ? hashView : 'home';
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            render();
+        });
+
+        function updateHeader() {
+            const avatar = AVATAR_CHOICES.find(a => a.id === state.user.avatarId) || AVATAR_CHOICES[0];
+            const initials = avatar.label.split(' ').map(n => n[0]).join('').slice(0, 2);
+            const box = document.getElementById('header-avatar-box');
+            if (box) {
+                box.innerHTML = `
+                    <img src="${avatar.img}" alt="${avatar.label}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover">
+                    <span class="hidden w-full h-full items-center justify-center text-xs font-black text-white">${initials}</span>
+                `;
+            }
+            const nameEl = document.getElementById('header-user-name');
+            if (nameEl) nameEl.textContent = state.user.name;
+            const ptsEl = document.getElementById('header-points');
+            if (ptsEl) ptsEl.textContent = state.user.points;
+
+            const badge = document.getElementById('mobile-ticket-badge');
+            if (badge) badge.textContent = state.tickets.length;
+
+            ['home', 'tickets', 'program', 'profile'].forEach(tab => {
+                const btn = document.getElementById(`bottom-nav-${tab}`);
+                if (btn) {
+                    btn.classList.toggle('is-active', state.view === tab);
+                }
+            });
+        }
+
+        function renderHomeView() {
+            const genres = ['Tous', 'Animé', 'Science-Fiction', 'Action', 'Drame'];
+            const activeDayObj = WEEK_DAYS.find(d => d.id === state.selectedDay) || WEEK_DAYS[0];
+
+            let filtered = MOVIES.filter(m => {
+                const matchesGenre = state.selectedGenre === 'Tous' || m.genre === state.selectedGenre;
+                const q = state.searchQuery.trim().toLowerCase();
+                const matchesSearch = !q ||
+                    m.title.toLowerCase().includes(q) ||
+                    m.director.toLowerCase().includes(q) ||
+                    m.cast.some(c => c.toLowerCase().includes(q));
+                return matchesGenre && matchesSearch;
+            });
+
+            filtered.sort((a, b) => {
+                if (a.isNew && !b.isNew) return -1;
+                if (!a.isNew && b.isNew) return 1;
+                return b.views - a.views;
+            });
+
+            return `
+                <div class="space-y-8">
+                    <!-- Bannière d'accueil -->
+                    <div class="hero-banner bg-gradient-to-r from-blue-900/50 via-cinema-card to-indigo-950/50 border border-white/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
+                        <div class="space-y-2.5 text-center md:text-left">
+                            <span class="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs font-extrabold">
+                                Multiplexe 15 Salles · Dolby &amp; IMAX
+                            </span>
+                            <h1 class="type-h1 text-white">Vivez le cinéma grandeur nature</h1>
+                            <p class="type-body text-cinema-muted">Sélectionnez votre séance sur 7 jours, vos places sur plan interactif et profitez de la confiserie express.</p>
+                        </div>
+                    </div>
+
+                    <!-- Sélecteur de jour sur la semaine -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-cinema-muted">Jour de séance :</h3>
+                            <span class="text-xs font-extrabold text-blue-300">${activeDayObj.label} (${activeDayObj.dateNum})</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5 sm:gap-2">
+                            ${WEEK_DAYS.map(d => `
+                                <button onclick="state.selectedDay = '${d.id}'; render();"
+                                    class="py-2.5 px-1 sm:px-3 rounded-2xl border text-center transition ${state.selectedDay === d.id ? 'bg-blue-600 border-blue-500 text-white shadow-lg' : 'bg-cinema-card border-white/20 text-cinema-muted hover:text-white'}">
+                                    <span class="text-xs sm:text-sm font-extrabold block">${d.short}</span>
+                                    <span class="text-[10px] font-bold opacity-90">${d.dateNum}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Déclencheur de recherche centrée & Filtres de genres -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-1.5 overflow-x-auto w-full pb-2 sm:pb-0 no-scrollbar">
+                            ${genres.map(g => `
+                                <button onclick="state.selectedGenre = '${g}'; render();"
+                                    class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold transition whitespace-nowrap ${state.selectedGenre === g ? 'bg-blue-600 text-white shadow-md' : 'bg-cinema-card text-white hover:bg-cinema-elevated border border-white/20'}">
+                                    ${g}
+                                </button>
+                            `).join('')}
+                        </div>
+
+                        <!-- Barre de recherche dans son emplacement principal (sans badge Ctrl K) -->
+                        <div id="inline-search-container" class="flex items-center gap-2 w-full sm:w-80 shrink-0">
+                            <button type="button" onclick="openSearchModal()"
+                                class="w-full pl-3.5 pr-3.5 py-2.5 rounded-xl bg-cinema-card hover:bg-cinema-elevated border-2 border-white/25 text-xs sm:text-sm font-extrabold flex items-center justify-between gap-2 transition shadow-sm text-left">
+                                <span class="flex items-center gap-2.5 min-w-0">
+                                    <i class="ph-bold ph-magnifying-glass text-base text-blue-400 shrink-0"></i>
+                                    <span class="truncate ${state.searchQuery ? 'text-white' : 'text-cinema-muted'}">
+                                        ${state.searchQuery ? escapeHtml(state.searchQuery) : 'Rechercher un film, réalisateur...'}
+                                    </span>
+                                </span>
+                            </button>
+                            ${state.searchQuery ? `
+                                <button type="button" onclick="state.searchQuery = ''; render();" title="Réinitialiser le filtre"
+                                    class="p-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 transition shrink-0">
+                                    <i class="ph-bold ph-x text-base"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Grille des films à l'affiche -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+                        ${filtered.length === 0 ? `
+                            <div class="col-span-full bg-cinema-card border border-white/20 rounded-3xl p-8 text-center space-y-3">
+                                <i class="ph-bold ph-magnifying-glass text-4xl text-cinema-muted"></i>
+                                <p class="text-base font-extrabold text-white">Aucun film à l'affiche ne correspond à « ${escapeHtml(state.searchQuery)} »</p>
+                                <button onclick="state.searchQuery = ''; state.selectedGenre = 'Tous'; render();"
+                                    class="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-extrabold">
+                                    Afficher tous les films
+                                </button>
+                            </div>
+                        ` : filtered.map(movie => {
+                            const dayShowtimes = getShowtimesForDay(movie.showtimes, state.selectedDay);
+                            return `
+                            <article class="bg-cinema-card border border-white/20 rounded-3xl overflow-hidden flex flex-col justify-between shadow-xl hover:border-blue-400/60 transition group">
+                                <div>
+                                    <div onclick="openMovieDetail('${movie.id}')" class="relative h-80 sm:h-88 cursor-pointer overflow-hidden bg-gradient-to-br ${movie.fallbackBg}">
+                                        <img src="${movie.img}" alt="${movie.title}" onerror="this.style.display='none'"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-cinema-card via-transparent to-black/30"></div>
+
+                                        ${movie.isNew ? `
+                                        <span class="absolute top-3.5 left-3.5 px-3 py-1 rounded-xl bg-yellow-400 text-black text-xs font-black shadow-lg">
+                                            Nouveau
+                                        </span>
+                                        ` : ''}
+
+                                        <span class="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-xl bg-black/85 backdrop-blur-md border border-white/25 text-amber-300 text-xs font-extrabold flex items-center gap-1.5">
+                                            <i class="ph-fill ph-star"></i> ${movie.rating}
+                                            <span class="text-[10px] text-slate-200 font-bold">· ${(movie.views / 1000).toFixed(1).replace('.', ',')}k vues</span>
+                                        </span>
+
+                                        <span class="absolute bottom-3.5 left-3.5 px-3 py-1 rounded-xl border backdrop-blur-md text-xs font-extrabold ${movie.ageBadgeColor}">
+                                            ${movie.ageRating}
+                                        </span>
+                                    </div>
+
+                                    <div class="p-5 sm:p-6 space-y-3">
+                                        <div>
+                                            <p class="text-xs font-extrabold text-blue-400 uppercase tracking-wider">${movie.genre} · ${movie.duration}</p>
+                                            <h2 onclick="openMovieDetail('${movie.id}')" class="type-h3 text-white mt-1 cursor-pointer hover:text-blue-400 transition">${movie.title}</h2>
+                                            <p class="text-xs sm:text-sm font-semibold text-cinema-muted mt-0.5">De ${movie.director} · ${movie.hall}</p>
+                                        </div>
+                                        <p class="text-xs sm:text-sm text-slate-200 line-clamp-2 leading-relaxed">${movie.synopsis}</p>
+                                    </div>
+                                </div>
+
+                                <div class="px-5 sm:px-6 pb-5 sm:pb-6 pt-2 space-y-3">
+                                    <p class="text-[11px] font-extrabold text-cinema-muted">Séances · ${activeDayObj.label} (${activeDayObj.dateNum}) :</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${dayShowtimes.map(st => `
+                                            <button onclick="startBooking('${movie.id}', '${st.time}', '${st.format}', '${st.hall}', '${activeDayObj.label} ${activeDayObj.dateNum}')"
+                                                class="px-3.5 py-2 rounded-xl bg-cinema-elevated hover:bg-blue-600 text-white border border-white/20 hover:border-blue-500 text-xs sm:text-sm font-extrabold transition flex flex-col items-start">
+                                                <span>${st.time}</span>
+                                                <span class="text-[10px] font-bold opacity-90">${st.hall}</span>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </article>
+                        `;}).join('')}
+                    </div>
+
+                    <!-- Section : Films à venir (Prochainement en salle) -->
+                    <section class="space-y-4 pt-2">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
+                                    <i class="ph-fill ph-calendar-star text-xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="type-h2 text-white">Films à venir</h2>
+                                    <p class="text-xs sm:text-sm font-semibold text-cinema-muted">Prochaines sorties nationales · Préventes ouvertes</p>
+                                </div>
+                            </div>
+                            <span class="px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-extrabold">
+                                Avant-premières &amp; Préventes
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            ${COMING_SOON.map(item => `
+                                <article class="bg-cinema-card border border-white/20 hover:border-indigo-400 rounded-3xl overflow-hidden flex flex-col sm:flex-row shadow-xl transition group">
+                                    <div onclick="openComingSoonDetail('${item.id}')" class="relative sm:w-44 h-64 sm:h-auto shrink-0 cursor-pointer overflow-hidden bg-gradient-to-br ${item.fallbackBg}">
+                                        <img src="${item.img}" alt="${item.title}" onerror="this.style.display='none'"
+                                            class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                        <span class="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-indigo-600 text-white text-[11px] font-extrabold shadow-lg">
+                                            Bientôt
+                                        </span>
+                                    </div>
+
+                                    <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+                                        <div class="space-y-2">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <span class="px-2.5 py-0.5 rounded-lg bg-blue-500/20 border border-blue-500/40 text-blue-300 text-[11px] font-extrabold">${item.date}</span>
+                                                <span class="px-2.5 py-0.5 rounded-lg border text-[11px] font-extrabold ${item.ageBadgeColor}">${item.ageRating}</span>
+                                            </div>
+                                            <h3 onclick="openComingSoonDetail('${item.id}')" class="type-h3 text-white cursor-pointer hover:text-indigo-300 transition">${item.title}</h3>
+                                            <p class="text-xs font-semibold text-cinema-muted">De ${item.director} · ${item.genre} · ${item.duration}</p>
+                                            <p class="text-xs sm:text-sm text-slate-200 line-clamp-2 leading-relaxed">${item.synopsis}</p>
+                                        </div>
+
+                                        <div class="pt-2 border-t border-white/20 flex flex-wrap items-center justify-between gap-2">
+                                            <span class="text-[11px] font-extrabold text-emerald-300">${item.hall}</span>
+                                            <button onclick="openComingSoonDetail('${item.id}')"
+                                                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold transition flex items-center gap-1.5">
+                                                <span>Voir la fiche &amp; préventes</span>
+                                                <i class="ph-bold ph-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            `).join('')}
+                        </div>
+                    </section>
+
+                    <!-- Section Collapsible : Plus vus & Avis favorables -->
+                    <section class="bg-cinema-card border border-white/20 rounded-3xl overflow-hidden shadow-xl">
+                        <button onclick="state.popularCollapsibleOpen = !state.popularCollapsibleOpen; render();"
+                            class="w-full p-5 sm:p-6 bg-cinema-elevated hover:bg-cinema-elevated/80 flex items-center justify-between transition text-left">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                                    <i class="ph-fill ph-fire text-xl"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-base sm:text-lg font-extrabold text-white">Classement : Les plus vus &amp; Avis favorables ★</h2>
+                                    <p class="text-xs font-semibold text-cinema-muted">Films plébiscités par nos spectateurs ce mois-ci</p>
+                                </div>
+                            </div>
+                            <i class="ph-bold ${state.popularCollapsibleOpen ? 'ph-caret-up' : 'ph-caret-down'} text-xl text-white"></i>
+                        </button>
+
+                        ${state.popularCollapsibleOpen ? `
+                            <div class="p-5 sm:p-6 border-t border-white/20 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${[...MOVIES].sort((a,b) => b.views - a.views).slice(0, 4).map((m, idx) => `
+                                    <div onclick="openMovieDetail('${m.id}')" class="bg-cinema-elevated border border-white/20 hover:border-blue-400 rounded-2xl p-4 flex items-center gap-4 cursor-pointer transition group">
+                                        <div class="w-14 h-20 rounded-xl overflow-hidden shrink-0 bg-gradient-to-br ${m.fallbackBg}">
+                                            <img src="${m.img}" alt="${m.title}" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1 space-y-1">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[11px] font-extrabold text-amber-400">#${idx + 1} des plus vus</span>
+                                                <span class="text-xs text-amber-300 font-extrabold flex items-center gap-1"><i class="ph-fill ph-star"></i> ${m.rating}</span>
+                                            </div>
+                                            <h3 class="text-sm font-extrabold text-white group-hover:text-blue-400 transition">${m.title}</h3>
+                                            <p class="text-xs font-semibold text-cinema-muted">${(m.views / 1000).toLocaleString('fr-FR')} spectateurs · ${m.genre}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </section>
+                </div>
+            `;
+        }
+
+        function openMovieDetail(movieId) {
+            state.selectedMovieId = movieId;
+            navigateTo('detail');
+        }
+
+        function openComingSoonDetail(comingSoonId) {
+            state.selectedMovieId = comingSoonId;
+            navigateTo('coming-detail');
+        }
+
+        function startBooking(movieId, time, format, hall, dateLabel) {
+            const movie = MOVIES.find(m => m.id === movieId);
+            const activeDayObj = WEEK_DAYS.find(d => d.id === state.selectedDay) || WEEK_DAYS[0];
+            state.selectedMovieId = movieId;
+            state.selectedShowtime = {
+                time,
+                format,
+                hall,
+                dateLabel: dateLabel || `${activeDayObj.label} ${activeDayObj.dateNum}`
+            };
+            state.selectedSeats = [];
+            triggerHaptic('tic', `Séance ${state.selectedShowtime.dateLabel} à ${time}`);
+            navigateTo('seats');
+
+            if (movie && movie.ageRating === '-16 ans') {
+                setTimeout(() => {
+                    showLegalModal(
+                        'Restriction d’âge (-16 ans)',
+                        `Le film « ${movie.title} » est strictement interdit aux moins de 16 ans. Un contrôle de pièce d’identité sera effectué à l’entrée de la salle.`
+                    );
+                }, 80);
+            }
+        }
+
+        function renderComingSoonDetailView() {
+            const item = COMING_SOON.find(c => c.id === state.selectedMovieId) || COMING_SOON[0];
+            return `
+                <div class="space-y-8">
+                    <button onclick="goBackView('home')" class="px-4 py-2.5 rounded-2xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-sm font-extrabold text-white flex items-center gap-2 shadow-lg transition">
+                        <i class="ph-bold ph-arrow-left text-lg text-blue-400"></i> Retour aux films
+                    </button>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 shadow-2xl">
+                        <div class="relative rounded-2xl overflow-hidden h-96 md:h-auto bg-gradient-to-br ${item.fallbackBg}">
+                            <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-3.5 left-3.5 px-3 py-1 rounded-xl bg-indigo-600 text-white text-xs font-extrabold shadow-lg">
+                                Bientôt en salle
+                            </span>
+                        </div>
+
+                        <div class="md:col-span-2 flex flex-col justify-between space-y-6">
+                            <div class="space-y-4">
+                                <div class="flex flex-wrap items-center gap-2.5">
+                                    <span class="px-3 py-1 rounded-xl bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs font-extrabold">${item.date}</span>
+                                    <span class="px-3 py-1 rounded-xl border text-xs font-extrabold ${item.ageBadgeColor}">${item.ageRating}</span>
+                                    <span class="px-3 py-1 rounded-xl bg-white/10 border border-white/20 text-xs font-extrabold text-white">${item.genre}</span>
+                                    <span class="px-3 py-1 rounded-xl bg-white/10 border border-white/20 text-xs font-extrabold text-white">${item.duration}</span>
+                                </div>
+                                <h1 class="type-h1 text-white">${item.title}</h1>
+                                <p class="text-sm text-cinema-muted">Réalisé par <strong class="text-white">${item.director}</strong> · Avec ${item.cast.join(', ')}</p>
+
+                                <div class="bg-cinema-elevated border border-white/20 rounded-2xl p-4 sm:p-5 space-y-1.5">
+                                    <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-300">Synopsis officiel</h3>
+                                    <p class="type-body text-slate-200 leading-relaxed">${item.synopsis}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3 pt-4 border-t border-white/20">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <h3 class="text-base font-extrabold text-white">Programme prévisionnel (${item.releaseDay}) :</h3>
+                                    <span class="text-xs font-extrabold text-emerald-300">Réservation anticipée ouverte</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    ${item.showtimes.map(st => `
+                                        <button onclick="startBooking('${item.id}', '${st.time}', '${st.format}', '${st.hall}', '${item.releaseDay} prochain')"
+                                            class="p-4 rounded-2xl bg-cinema-elevated hover:bg-blue-600 border border-white/20 hover:border-blue-500 text-left transition group">
+                                            <span class="text-xl font-extrabold text-white block">${st.time}</span>
+                                            <span class="text-xs text-blue-300 group-hover:text-white font-bold block mt-0.5">${st.format}</span>
+                                            <span class="text-xs text-cinema-muted group-hover:text-white/90 block mt-1">${st.hall}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMovieDetailView() {
+            const movie = MOVIES.find(m => m.id === state.selectedMovieId) || MOVIES[0];
+            const activeDayObj = WEEK_DAYS.find(d => d.id === state.selectedDay) || WEEK_DAYS[0];
+            const dayShowtimes = getShowtimesForDay(movie.showtimes, state.selectedDay);
+
+            return `
+                <div class="space-y-8">
+                    <button onclick="goBackView('home')" class="px-4 py-2.5 rounded-2xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-sm font-extrabold text-white flex items-center gap-2 shadow-lg transition">
+                        <i class="ph-bold ph-arrow-left text-lg text-blue-400"></i> Retour aux films
+                    </button>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 shadow-2xl">
+                        <div class="relative rounded-2xl overflow-hidden h-96 md:h-auto bg-gradient-to-br ${movie.fallbackBg}">
+                            <img src="${movie.img}" alt="${movie.title}" onerror="this.style.display='none'" class="w-full h-full object-cover">
+                            ${movie.isNew ? `<span class="absolute top-3 left-3 px-3 py-1 rounded-xl bg-yellow-400 text-black text-xs font-black">Nouveau</span>` : ''}
+                        </div>
+
+                        <div class="md:col-span-2 flex flex-col justify-between space-y-6">
+                            <div class="space-y-4">
+                                <div class="flex flex-wrap items-center gap-2.5">
+                                    <span class="px-3 py-1 rounded-xl border text-xs font-extrabold ${movie.ageBadgeColor}">${movie.ageRating}</span>
+                                    <span class="px-3 py-1 rounded-xl bg-white/10 border border-white/20 text-xs font-extrabold text-white">${movie.genre}</span>
+                                    <span class="px-3 py-1 rounded-xl bg-white/10 border border-white/20 text-xs font-extrabold text-white">${movie.duration}</span>
+                                </div>
+                                <h1 class="type-h1 text-white">${movie.title}</h1>
+                                <p class="text-sm text-cinema-muted">Réalisé par <strong class="text-white">${movie.director}</strong> · Avec ${movie.cast.join(', ')}</p>
+                                <p class="type-body text-slate-200 leading-relaxed">${movie.synopsis}</p>
+
+                                ${movie.castProfiles && movie.castProfiles.length > 0 ? `
+                                    <div class="pt-2 space-y-2.5">
+                                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-cinema-muted">Distribution &amp; Personnages</h3>
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                            ${movie.castProfiles.map(actor => {
+                                                const initials = actor.name.split(' ').map(n => n[0]).join('').slice(0, 2);
+                                                return `
+                                                <div class="flex items-center gap-3 bg-cinema-elevated border border-white/20 rounded-2xl p-2.5">
+                                                    <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center border border-white/20">
+                                                        <img src="${actor.img}" alt="${actor.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover">
+                                                        <span class="hidden w-full h-full items-center justify-center text-xs font-black text-white">${initials}</span>
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <p class="text-xs font-extrabold text-white truncate">${actor.role}</p>
+                                                        <p class="text-[11px] font-semibold text-cinema-muted truncate">${actor.name}</p>
+                                                    </div>
+                                                </div>
+                                                `;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+
+                            <div class="space-y-4 pt-4 border-t border-white/20">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-base font-extrabold text-white">Programme de la semaine :</h3>
+                                    <span class="text-xs font-extrabold text-blue-300">${activeDayObj.label} (${activeDayObj.dateNum})</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-1.5">
+                                    ${WEEK_DAYS.map(d => `
+                                        <button onclick="state.selectedDay = '${d.id}'; render();"
+                                            class="py-2 px-1 rounded-xl border text-center transition ${state.selectedDay === d.id ? 'bg-blue-600 border-blue-500 text-white' : 'bg-cinema-elevated border-white/20 text-cinema-muted hover:text-white'}">
+                                            <span class="text-[11px] font-extrabold block">${d.short}</span>
+                                            <span class="text-[10px] font-bold opacity-90">${d.dateNum}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    ${dayShowtimes.map(st => `
+                                        <button onclick="startBooking('${movie.id}', '${st.time}', '${st.format}', '${st.hall}', '${activeDayObj.label} ${activeDayObj.dateNum}')"
+                                            class="p-4 rounded-2xl bg-cinema-elevated hover:bg-blue-600 border border-white/20 hover:border-blue-500 text-left transition group">
+                                            <span class="text-xl font-extrabold text-white block">${st.time}</span>
+                                            <span class="text-xs text-blue-300 group-hover:text-white font-bold block mt-0.5">${st.format}</span>
+                                            <span class="text-xs text-cinema-muted group-hover:text-white/90 block mt-1">${st.hall}</span>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSeat(seatId) {
+            if (OCCUPIED_SEATS.includes(seatId)) return;
+            const idx = state.selectedSeats.indexOf(seatId);
+            if (idx > -1) {
+                state.selectedSeats.splice(idx, 1);
+            } else {
+                state.selectedSeats.push(seatId);
+                triggerHaptic('tic', `Place ${seatId} ajoutée`);
+            }
+            render();
+        }
+
+        function renderSeatsView() {
+            const movie = MOVIES.find(m => m.id === state.selectedMovieId) || COMING_SOON.find(c => c.id === state.selectedMovieId) || MOVIES[0];
+            const showtime = state.selectedShowtime || movie.showtimes[0];
+            const currentTarif = TARIFS.find(t => t.id === state.selectedTarifId) || TARIFS[0];
+            const rows = ['A', 'B', 'C', 'D', 'E', 'F'];
+            const cols = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            const totalTickets = (state.selectedSeats.length * currentTarif.price).toFixed(2).replace('.', ',');
+
+            return `
+                <div class="space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <button onclick="goBackView('detail')" class="px-4 py-2.5 rounded-2xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-sm font-extrabold text-white flex items-center gap-2 shadow-lg transition">
+                            <i class="ph-bold ph-arrow-left text-lg text-blue-400"></i> Changer de séance
+                        </button>
+                        <span class="px-3.5 py-1.5 rounded-xl bg-cinema-elevated border border-white/20 text-xs sm:text-sm font-extrabold text-blue-300">
+                            ${movie.title} · ${showtime.dateLabel || 'Aujourd’hui'} à ${showtime.time} (${showtime.hall})
+                        </span>
+                    </div>
+
+                    <!-- Sélection du tarif -->
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-5 sm:p-6 space-y-4">
+                        <h2 class="text-base sm:text-lg font-extrabold text-white">1. Choisissez votre tarif</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            ${TARIFS.map(t => `
+                                <button onclick="state.selectedTarifId = '${t.id}'; render();"
+                                    class="p-4 rounded-2xl border-2 text-left transition ${state.selectedTarifId === t.id ? 'bg-blue-600/25 border-blue-500 text-white shadow-lg' : 'bg-cinema-elevated border-white/15 text-slate-200 hover:border-white/30'}">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs sm:text-sm font-extrabold">${t.label}</span>
+                                        <span class="text-sm sm:text-base font-black text-blue-300">${t.price.toFixed(2).replace('.', ',')} €</span>
+                                    </div>
+                                    <p class="text-[11px] font-semibold text-cinema-muted mt-1">${t.desc}</p>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Plan de salle interactif -->
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-4 sm:p-8 space-y-6">
+                        <div class="text-center space-y-2">
+                            <div class="w-4/5 max-w-md mx-auto h-2.5 rounded-full bg-gradient-to-r from-transparent via-blue-400 to-transparent shadow-[0_6px_25px_rgba(59,130,246,0.65)]"></div>
+                            <p class="text-[11px] uppercase tracking-[0.25em] text-blue-300 font-extrabold">Écran Panoramique · ${showtime.hall}</p>
+                        </div>
+
+                        <div class="max-w-xl mx-auto space-y-2.5">
+                            ${rows.map(row => `
+                                <div class="flex items-center justify-center gap-1.5 sm:gap-2.5">
+                                    <span class="w-5 text-xs font-extrabold text-cinema-muted text-right">${row}</span>
+                                    <div class="grid grid-cols-9 gap-1 sm:gap-2 flex-1">
+                                        ${cols.map(col => {
+                                            const seatId = `${row}${col}`;
+                                            const isOccupied = OCCUPIED_SEATS.includes(seatId);
+                                            const isSelected = state.selectedSeats.includes(seatId);
+                                            const isPmr = PMR_SEATS.includes(seatId);
+
+                                            let seatClass = 'bg-[#6F9CEB]/25 border-[#6F9CEB]/70 text-[#93C5FD] hover:bg-[#6F9CEB]/40';
+                                            if (isOccupied) seatClass = 'bg-zinc-900/70 border-zinc-700 text-zinc-500 cursor-not-allowed';
+                                            else if (isSelected) seatClass = 'bg-emerald-400 border-emerald-300 text-black font-black scale-105 shadow-lg shadow-emerald-500/30';
+                                            else if (isPmr) seatClass = 'bg-amber-500/30 border-amber-400 text-amber-300 hover:bg-amber-500/45';
+
+                                            return `
+                                                <button onclick="toggleSeat('${seatId}')" ${isOccupied ? 'disabled' : ''}
+                                                    class="aspect-square rounded-lg sm:rounded-xl border text-[10px] sm:text-xs font-extrabold flex items-center justify-center transition ${seatClass}">
+                                                    ${isPmr && !isSelected ? '<i class="ph-bold ph-wheelchair"></i>' : seatId}
+                                                </button>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                    <span class="w-5 text-xs font-extrabold text-cinema-muted text-left">${row}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Légende des sièges -->
+                        <div class="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs font-bold text-slate-200">
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-[#6F9CEB]/35 border border-[#6F9CEB]"></span> Libre</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-400"></span> Sélectionnée</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-amber-500/35 border border-amber-400"></span> PMR</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-zinc-900 border border-zinc-700"></span> Occupée</span>
+                        </div>
+                    </div>
+
+                    <!-- Barre de validation -->
+                    <div class="bg-cinema-elevated border border-white/20 rounded-3xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div>
+                            <p class="text-xs font-bold text-cinema-muted">Places sélectionnées : <strong class="text-white">${state.selectedSeats.length > 0 ? state.selectedSeats.join(', ') : 'Aucune'}</strong></p>
+                            <p class="text-xl font-black text-white mt-0.5">Total places : <span class="text-emerald-400">${totalTickets} €</span></p>
+                        </div>
+                        <button onclick="${state.selectedSeats.length > 0 ? "navigateTo('snacks')" : "showLegalModal('Sélection requise', 'Veuillez sélectionner au moins un siège disponible sur le plan de salle avant de continuer.')"}"
+                            class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-lg transition">
+                            Continuer vers la confiserie →
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addConfiguredSnack() {
+            const prices = { Petit: 4.50, Moyen: 6.00, Grand: 7.50 };
+            const price = prices[state.snackSize] || 6.00;
+            const title = state.snackTab === 'popcorn'
+                ? `Popcorn ${state.snackFlavor} (${state.snackSize})`
+                : `Boisson ${state.snackFlavor} (${state.snackSize})`;
+            state.cartSnacks.push({ id: Date.now(), title, price });
+            triggerHaptic('tic', `${title} ajouté`);
+            render();
+        }
+
+        function removeSnack(id) {
+            state.cartSnacks = state.cartSnacks.filter(s => s.id !== id);
+            render();
+        }
+
+        function renderSnacksView() {
+            const flavors = state.snackTab === 'popcorn' ? ['Sucré', 'Salé', 'Caramel'] : ['Cola Frais', 'Thé Glacé Pêche', 'Eau Minérale'];
+            if (!flavors.includes(state.snackFlavor)) state.snackFlavor = flavors[0];
+            const sizes = [
+                { label: 'Petit', price: '4,50 €' },
+                { label: 'Moyen', price: '6,00 €' },
+                { label: 'Grand', price: '7,50 €' }
+            ];
+            const snacksTotal = state.cartSnacks.reduce((acc, s) => acc + s.price, 0);
+
+            return `
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <button onclick="goBackView('seats')" class="px-4 py-2.5 rounded-2xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-sm font-extrabold text-white flex items-center gap-2 shadow-lg transition">
+                        <i class="ph-bold ph-arrow-left text-lg text-blue-400"></i> Retour aux places
+                    </button>
+
+                    <!-- Carte compacte de confiserie -->
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 space-y-5 shadow-xl">
+                        <div class="flex items-center justify-between">
+                            <h1 class="type-h2 text-white flex items-center gap-2">
+                                <i class="ph-fill ph-popcorn text-amber-400"></i> Confiserie Express
+                            </h1>
+                            <span class="text-xs font-extrabold text-amber-300">+30 pts fidélité</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 bg-cinema-elevated p-1.5 rounded-2xl border border-white/15">
+                            <button onclick="state.snackTab = 'popcorn'; state.snackFlavor = 'Sucré'; render();"
+                                class="py-2.5 rounded-xl text-sm font-extrabold transition ${state.snackTab === 'popcorn' ? 'bg-blue-600 text-white shadow' : 'text-cinema-muted hover:text-white'}">
+                                🍿 Popcorn
+                            </button>
+                            <button onclick="state.snackTab = 'boisson'; state.snackFlavor = 'Cola Frais'; render();"
+                                class="py-2.5 rounded-xl text-sm font-extrabold transition ${state.snackTab === 'boisson' ? 'bg-blue-600 text-white shadow' : 'text-cinema-muted hover:text-white'}">
+                                🥤 Boisson
+                            </button>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-extrabold text-cinema-muted uppercase">Saveur</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                ${flavors.map(f => `
+                                    <button onclick="state.snackFlavor = '${f}'; render();"
+                                        class="py-2.5 px-3 rounded-xl border-2 text-xs sm:text-sm font-extrabold transition ${state.snackFlavor === f ? 'bg-blue-600/25 border-blue-500 text-white' : 'bg-cinema-elevated border-white/15 text-slate-200'}">
+                                        ${f}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-extrabold text-cinema-muted uppercase">Format</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                ${sizes.map(sz => `
+                                    <button onclick="state.snackSize = '${sz.label}'; render();"
+                                        class="py-2.5 px-3 rounded-xl border-2 text-center transition ${state.snackSize === sz.label ? 'bg-blue-600/25 border-blue-500 text-white' : 'bg-cinema-elevated border-white/15 text-slate-200'}">
+                                        <span class="text-xs sm:text-sm font-extrabold block">${sz.label}</span>
+                                        <span class="text-xs text-emerald-400 font-extrabold">${sz.price}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <button onclick="addConfiguredSnack()"
+                            class="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm transition shadow-lg">
+                            + Ajouter au panier
+                        </button>
+                    </div>
+
+                    ${state.cartSnacks.length > 0 ? `
+                        <div class="bg-cinema-card border border-white/20 rounded-3xl p-5 space-y-3">
+                            <h3 class="text-sm font-extrabold text-white">Votre sélection gourmande (${snacksTotal.toFixed(2).replace('.', ',')} €)</h3>
+                            <div class="space-y-2">
+                                ${state.cartSnacks.map(s => `
+                                    <div class="flex items-center justify-between bg-cinema-elevated border border-white/15 px-4 py-2.5 rounded-xl text-xs sm:text-sm">
+                                        <span class="font-extrabold text-white">${s.title}</span>
+                                        <div class="flex items-center gap-3">
+                                            <span class="font-extrabold text-emerald-400">${s.price.toFixed(2).replace('.', ',')} €</span>
+                                            <button onclick="removeSnack(${s.id})" class="text-rose-400 hover:text-rose-300"><i class="ph-bold ph-trash"></i></button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="navigateTo('payment')"
+                            class="flex-1 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-lg transition">
+                            Passer au paiement →
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPaymentView() {
+            const movie = MOVIES.find(m => m.id === state.selectedMovieId) || COMING_SOON.find(c => c.id === state.selectedMovieId) || MOVIES[0];
+            const showtime = state.selectedShowtime || movie.showtimes[0];
+            const tarif = TARIFS.find(t => t.id === state.selectedTarifId) || TARIFS[0];
+            const seatsTotal = state.selectedSeats.length * tarif.price;
+            const snacksTotal = state.cartSnacks.reduce((acc, s) => acc + s.price, 0);
+            const grandTotal = (seatsTotal + snacksTotal).toFixed(2).replace('.', ',');
+
+            const isApple = /iPhone|iPad|iPod|Mac/i.test(navigator.userAgent);
+            const walletLabel = isApple ? 'Apple Pay' : 'Google Pay';
+            const walletIcon = isApple ? 'ph-apple-logo' : 'ph-google-logo';
+
+            return `
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <button onclick="goBackView('snacks')" class="px-4 py-2.5 rounded-2xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-sm font-extrabold text-white flex items-center gap-2 shadow-lg transition">
+                        <i class="ph-bold ph-arrow-left text-lg text-blue-400"></i> Retour à la confiserie
+                    </button>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 space-y-4 shadow-xl">
+                        <h1 class="type-h2 text-white">Récapitulatif &amp; Paiement</h1>
+                        <div class="bg-cinema-elevated border border-white/15 rounded-2xl p-4 space-y-2 text-xs sm:text-sm">
+                            <div class="flex justify-between"><span class="text-cinema-muted font-bold">Film :</span><strong class="text-white">${movie.title}</strong></div>
+                            <div class="flex justify-between"><span class="text-cinema-muted font-bold">Séance :</span><strong class="text-white">${showtime.dateLabel || 'Aujourd’hui'} à ${showtime.time} (${showtime.hall})</strong></div>
+                            <div class="flex justify-between"><span class="text-cinema-muted font-bold">Places (${state.selectedSeats.join(', ')}) :</span><strong class="text-white">${seatsTotal.toFixed(2).replace('.', ',')} €</strong></div>
+                            <div class="flex justify-between"><span class="text-cinema-muted font-bold">Confiserie :</span><strong class="text-white">${snacksTotal.toFixed(2).replace('.', ',')} €</strong></div>
+                            <div class="pt-2 border-t border-white/20 flex justify-between text-base font-black">
+                                <span class="text-white">Total TTC :</span>
+                                <span class="text-emerald-400">${grandTotal} €</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-2">
+                            <p class="text-xs font-extrabold uppercase tracking-wider text-cinema-muted">Moyen de paiement</p>
+
+                            <button onclick="state.paymentMethod = 'wallet'; render();"
+                                class="w-full p-4 rounded-2xl border-2 flex items-center justify-between transition ${state.paymentMethod === 'wallet' ? 'bg-blue-600 text-white border-blue-400 shadow-lg' : 'bg-cinema-elevated border-white/15 text-white'}">
+                                <span class="flex items-center gap-3 font-extrabold text-sm sm:text-base">
+                                    <i class="ph-fill ${walletIcon} text-2xl"></i> ${walletLabel} (Express)
+                                </span>
+                                <span class="text-xs font-extrabold px-2.5 py-1 rounded-lg ${state.paymentMethod === 'wallet' ? 'bg-white/20 text-white' : 'bg-white/10 text-slate-200'}">Recommandé</span>
+                            </button>
+
+                            <button onclick="state.paymentMethod = 'cb'; render();"
+                                class="w-full p-4 rounded-2xl border-2 flex items-center justify-between transition ${state.paymentMethod === 'cb' ? 'bg-blue-600/25 border-blue-500 text-white shadow-lg' : 'bg-cinema-elevated border-white/15 text-white'}">
+                                <span class="flex items-center gap-3 font-extrabold text-sm sm:text-base">
+                                    <i class="ph-bold ph-credit-card text-2xl text-blue-400"></i> Carte Bancaire (CB / Visa / Mastercard)
+                                </span>
+                                <i class="ph-bold ${state.paymentMethod === 'cb' ? 'ph-check-circle text-emerald-400' : 'ph-circle text-cinema-muted'} text-xl"></i>
+                            </button>
+
+                            <div class="border border-white/20 rounded-2xl overflow-hidden">
+                                <button onclick="state.morePaymentsOpen = !state.morePaymentsOpen; render();"
+                                    class="w-full p-4 bg-cinema-elevated hover:bg-cinema-elevated/80 flex items-center justify-between text-xs sm:text-sm font-extrabold text-white transition">
+                                    <span>Voir plus de moyens de paiement (CSE, Chèques-Vacances, Pass Culture)</span>
+                                    <i class="ph-bold ${state.morePaymentsOpen ? 'ph-caret-up' : 'ph-caret-down'} text-lg"></i>
+                                </button>
+
+                                ${state.morePaymentsOpen ? `
+                                    <div class="p-3 bg-cinema-bg/70 space-y-2 border-t border-white/20">
+                                        <button onclick="state.paymentMethod = 'cse'; render();"
+                                            class="w-full p-3.5 rounded-xl border-2 text-left flex items-center justify-between text-xs sm:text-sm font-extrabold transition ${state.paymentMethod === 'cse' ? 'bg-blue-600/25 border-blue-500 text-white' : 'bg-cinema-elevated border-white/15 text-slate-200'}">
+                                            <span>🎟️ Billets comités d'entreprise (CSE)</span>
+                                            <span>${state.paymentMethod === 'cse' ? '✓' : ''}</span>
+                                        </button>
+                                        <button onclick="state.paymentMethod = 'ancv'; render();"
+                                            class="w-full p-3.5 rounded-xl border-2 text-left flex items-center justify-between text-xs sm:text-sm font-extrabold transition ${state.paymentMethod === 'ancv' ? 'bg-blue-600/25 border-blue-500 text-white' : 'bg-cinema-elevated border-white/15 text-slate-200'}">
+                                            <span>🏖️ Chèques-Vacances (ANCV)</span>
+                                            <span>${state.paymentMethod === 'ancv' ? '✓' : ''}</span>
+                                        </button>
+                                        <button onclick="state.paymentMethod = 'pass'; render();"
+                                            class="w-full p-3.5 rounded-xl border-2 text-left flex items-center justify-between text-xs sm:text-sm font-extrabold transition ${state.paymentMethod === 'pass' ? 'bg-blue-600/25 border-blue-500 text-white' : 'bg-cinema-elevated border-white/15 text-slate-200'}">
+                                            <span>🎓 Pass Culture</span>
+                                            <span>${state.paymentMethod === 'pass' ? '✓' : ''}</span>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <button onclick="confirmBooking('${grandTotal}')"
+                            class="w-full py-4 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-base shadow-xl shadow-emerald-500/25 transition">
+                            Confirmer et générer mon billet (${grandTotal} €)
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function confirmBooking(grandTotal) {
+            const movie = MOVIES.find(m => m.id === state.selectedMovieId) || COMING_SOON.find(c => c.id === state.selectedMovieId) || MOVIES[0];
+            const showtime = state.selectedShowtime || movie.showtimes[0];
+            const tarif = TARIFS.find(t => t.id === state.selectedTarifId) || TARIFS[0];
+            const ticketCode = 'CL-' + Math.floor(10000 + Math.random() * 89999);
+
+            state.tickets.unshift({
+                code: ticketCode,
+                movieTitle: movie.title,
+                date: showtime.dateLabel || 'Aujourd’hui',
+                time: showtime.time,
+                hall: showtime.hall,
+                seats: [...state.selectedSeats],
+                tarif: tarif.label,
+                total: grandTotal + ' €'
+            });
+
+            state.user.points += 50 + (state.cartSnacks.length * 30);
+            state.cartSnacks = [];
+            state.selectedSeats = [];
+            triggerHaptic('success', 'Réservation confirmée ! +50 pts fidélité');
+            navigateTo('tickets');
+        }
+
+        function cancelTicket(idx) {
+            state.tickets.splice(idx, 1);
+            triggerHaptic('success', 'Billet annulé');
+            render();
+        }
+
+        function rescheduleTicket(idx) {
+            navigateTo('home');
+            setTimeout(() => {
+                showLegalModal('Changement de séance', 'Veuillez choisir une nouvelle séance depuis l’accueil pour votre billet.');
+            }, 80);
+        }
+
+        function renderTicketsView() {
+            return `
+                <div class="max-w-2xl mx-auto space-y-6">
+                    <div class="flex items-center justify-between">
+                        <h1 class="type-h1 text-white">Mon Billet d'accès</h1>
+                        <button onclick="triggerHaptic('success', 'Luminosité QR Code maximale activée')" class="px-3.5 py-2 rounded-2xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-xs font-extrabold text-white flex items-center gap-1.5 transition">
+                            <i class="ph-bold ph-sun text-amber-400"></i> Éclairer QR
+                        </button>
+                    </div>
+
+                    ${state.offlineSimulated ? `
+                        <div class="bg-cyan-500/15 border border-cyan-400/50 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-xs font-extrabold text-cyan-200">
+                            <span class="flex items-center gap-2"><i class="ph-bold ph-wifi-slash text-base text-cyan-400"></i> Mode hors-ligne actif : vos billets QR Code restent 100 % valides sans connexion.</span>
+                            <button onclick="state.offlineSimulated = false; render();" class="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white shrink-0">Quitter</button>
+                        </div>
+                    ` : ''}
+
+                    <div class="space-y-6">
+                        ${state.tickets.map((t, idx) => `
+                            <div class="bg-cinema-card border-2 border-white/25 rounded-3xl p-6 sm:p-7 space-y-6 shadow-2xl relative">
+                                <div class="space-y-1">
+                                    <span class="text-xs font-black text-blue-400 tracking-wider">${t.hall.toUpperCase()} · ${t.tarif.toUpperCase()}</span>
+                                    <h2 class="text-2xl sm:text-3xl font-black text-white">${t.movieTitle}</h2>
+                                    <p class="text-xs sm:text-sm font-bold text-cinema-muted">${t.date} à ${t.time}</p>
+                                </div>
+
+                                <div class="bg-white rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-inner">
+                                    <div id="qr-container-${idx}" class="w-48 h-48 flex items-center justify-center">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(t.code + '|' + t.movieTitle + '|' + t.hall + '|' + t.seats.join(','))}" 
+                                             alt="QR Code Billet ${t.code}" 
+                                             class="w-44 h-44 object-contain"
+                                             onerror="this.parentElement.innerHTML='<div class=\'text-xs font-bold text-black text-center p-4\'>QR Code prêt hors-ligne (${t.code})</div>'">
+                                    </div>
+                                    <span class="text-xs font-mono font-black text-slate-900 tracking-widest">${t.code}</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4 text-xs sm:text-sm pt-2">
+                                    <div>
+                                        <span class="text-cinema-muted font-bold block text-xs">Places</span>
+                                        <strong class="text-white text-base font-extrabold">${t.seats.join(', ')}</strong>
+                                    </div>
+                                    <div>
+                                        <span class="text-cinema-muted font-bold block text-xs">Tarif</span>
+                                        <strong class="text-white text-base font-extrabold">${t.tarif}</strong>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-white/20">
+                                    <button onclick="rescheduleTicket(${idx})"
+                                        class="py-3 px-2 rounded-2xl bg-cinema-elevated hover:bg-blue-600/25 border border-white/20 text-xs font-extrabold text-white transition text-center">
+                                        Changer séance
+                                    </button>
+                                    <button onclick="cancelTicket(${idx})"
+                                        class="py-3 px-2 rounded-2xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/50 text-xs font-extrabold text-rose-300 transition text-center">
+                                        Annuler
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${state.tickets.length === 0 ? `
+                            <div class="bg-cinema-card border border-white/20 rounded-3xl p-8 text-center space-y-3">
+                                <i class="ph-bold ph-ticket text-4xl text-cinema-muted"></i>
+                                <p class="text-sm font-bold text-cinema-muted">Aucun billet actif pour le moment.</p>
+                                <button onclick="navigateTo('home')" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-extrabold">Réserver une séance</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function downloadProgramPDF() {
+            if (!window.jspdf) {
+                showLegalModal('Export PDF', 'Le module PDF est en cours de chargement, réessayez dans un instant.');
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(18);
+            doc.text('CINE LUMIERE - PROGRAMME DE LA SEMAINE (15 SALLES)', 14, 20);
+            doc.setFontSize(11);
+            let y = 34;
+            MOVIES.forEach(m => {
+                doc.setFont(undefined, 'bold');
+                doc.text(`${m.title} (${m.duration} - ${m.ageRating})`, 14, y);
+                y += 6;
+                doc.setFont(undefined, 'normal');
+                const times = m.showtimes.map(s => `${s.time} (${s.hall})`).join(' | ');
+                doc.text(`Horaires base : ${times}`, 14, y);
+                y += 10;
+            });
+            doc.save('Programme_Cine_Lumiere_15_Salles.pdf');
+            triggerHaptic('success', 'Programme PDF téléchargé');
+        }
+
+        function renderProgramView() {
+            return `
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="type-h1 text-white">Programme Hebdomadaire</h1>
+                            <p class="text-sm font-semibold text-cinema-muted mt-1">Multiplexe Ciné Lumière · 15 Salles · Téléchargeable en PDF</p>
+                        </div>
+                        <button onclick="downloadProgramPDF()"
+                            class="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm flex items-center gap-2 shadow-lg transition">
+                            <i class="ph-bold ph-download-simple text-lg"></i> Télécharger le PDF
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        ${MOVIES.map(m => `
+                            <div class="bg-cinema-card border border-white/20 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-base sm:text-lg font-extrabold text-white">${m.title}</h3>
+                                        ${m.isNew ? '<span class="px-2 py-0.5 rounded bg-yellow-400 text-black text-[10px] font-black">Nouveau</span>' : ''}
+                                    </div>
+                                    <p class="text-xs font-semibold text-cinema-muted mt-0.5">${m.genre} · ${m.duration} · ${m.ageRating}</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    ${m.showtimes.map(st => `
+                                        <button onclick="startBooking('${m.id}', '${st.time}', '${st.format}', '${st.hall}', 'Aujourd’hui')"
+                                            class="px-3 py-1.5 rounded-xl bg-cinema-elevated hover:bg-blue-600 text-xs font-extrabold text-white border border-white/20 transition">
+                                            ${st.time} · ${st.hall}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGuideView() {
+            return `
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <button onclick="goBackView('home')" class="px-4 py-2.5 rounded-2xl bg-cinema-card hover:bg-cinema-elevated border border-white/20 text-sm font-extrabold text-white flex items-center gap-2 shadow-lg transition">
+                        <i class="ph-bold ph-arrow-left text-lg text-blue-400"></i> Retour à l'accueil
+                    </button>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 sm:p-8 space-y-3 shadow-2xl">
+                        <h1 class="type-h1 text-white">Guide Ciné Lumière</h1>
+                        <p class="text-sm font-semibold text-cinema-muted">Tout savoir sur les classifications de films (-16 ans, Tous publics) et les couleurs du plan de salle.</p>
+                    </div>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 sm:p-8 space-y-4">
+                        <h2 class="text-lg font-extrabold text-white">1. Classifications d'âge (Tous publics vs -16 ans)</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-cinema-elevated border border-emerald-500/40 rounded-2xl p-4 space-y-2">
+                                <span class="inline-block px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-extrabold">Tous publics (Vert)</span>
+                                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">Films familiaux et animations (onglet <b>Animé</b>) adaptés dès le plus jeune âge.</p>
+                            </div>
+                            <div class="bg-cinema-elevated border border-sky-500/40 rounded-2xl p-4 space-y-2">
+                                <span class="inline-block px-3 py-1 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/40 text-xs font-extrabold">Tous publics (Bleu)</span>
+                                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">Œuvres de science-fiction, drames ou films historiques à destination de tous.</p>
+                            </div>
+                            <div class="bg-cinema-elevated border border-rose-500/40 rounded-2xl p-4 space-y-2">
+                                <span class="inline-block px-3 py-1 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-extrabold">-16 ans (Rouge)</span>
+                                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">Films réservés aux spectateurs de 16 ans et plus (contrôle de pièce d'identité à l'entrée de la salle).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 sm:p-8 space-y-4">
+                        <h2 class="text-lg font-extrabold text-white">2. Couleurs des sièges en salle</h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="flex items-center gap-3 bg-cinema-elevated border border-[#6F9CEB]/50 rounded-2xl p-3.5">
+                                <div class="w-8 h-8 rounded-lg bg-[#6F9CEB]/25 border border-[#6F9CEB] flex items-center justify-center font-extrabold text-[#93C5FD] text-xs">A1</div>
+                                <div><p class="text-xs font-extrabold text-white">Bleu clair : Libre</p><p class="text-[11px] font-semibold text-cinema-muted">Place disponible.</p></div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-cinema-elevated border border-emerald-400/50 rounded-2xl p-3.5">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-400 flex items-center justify-center font-black text-black text-xs">A1</div>
+                                <div><p class="text-xs font-extrabold text-white">Vert : Sélectionnée</p><p class="text-[11px] font-semibold text-cinema-muted">Votre siège choisi.</p></div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-cinema-elevated border border-amber-400/50 rounded-2xl p-3.5">
+                                <div class="w-8 h-8 rounded-lg bg-amber-500/30 border border-amber-400 flex items-center justify-center font-extrabold text-amber-300 text-xs"><i class="ph-bold ph-wheelchair"></i></div>
+                                <div><p class="text-xs font-extrabold text-white">Ambre : PMR</p><p class="text-[11px] font-semibold text-cinema-muted">Accès mobilité réduite.</p></div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-cinema-elevated border border-zinc-600 rounded-2xl p-3.5">
+                                <div class="w-8 h-8 rounded-lg bg-zinc-900/70 border border-zinc-700 flex items-center justify-center font-extrabold text-zinc-500 text-xs">A1</div>
+                                <div><p class="text-xs font-extrabold text-white">Gris sombre : Occupée</p><p class="text-[11px] font-semibold text-cinema-muted">Déjà réservée.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function submitReview() {
+            const movie = document.getElementById('review-movie').value;
+            const text = document.getElementById('review-text').value.trim();
+            if (!text) return;
+            const bonus = state.reviewBonus50 ? 50 : 25;
+            state.reviews.unshift({ author: state.user.name, movie, rating: 5, text });
+            state.user.points += bonus;
+            state.reviewBonus50 = false;
+            triggerHaptic('success', `Merci pour votre avis ! +${bonus} pts fidélité`);
+            render();
+        }
+
+        function redeemReward(cost, label) {
+            if (state.user.points < cost) {
+                showLegalModal('Points insuffisants', `Il vous faut ${cost} points fidélité pour débloquer « ${label} ».`);
+                return;
+            }
+            state.user.points -= cost;
+            triggerHaptic('success', `Récompense débloquée : ${label}`);
+            render();
+            setTimeout(() => {
+                showLegalModal('Récompense activée !', `Votre avantage « ${label} » a été ajouté à votre carte membre Ciné Lumière et est utilisable dès votre prochaine séance.`);
+            }, 60);
+        }
+
+        function renderProfileView() {
+            const currentAvatar = AVATAR_CHOICES.find(a => a.id === state.user.avatarId) || AVATAR_CHOICES[0];
+            const currentInitials = currentAvatar.label.split(' ').map(n => n[0]).join('').slice(0, 2);
+            return `
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="bg-gradient-to-br from-cinema-card via-cinema-elevated to-indigo-950/60 border border-white/20 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+                        <div class="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-5">
+                            <div class="flex items-center gap-4">
+                                <div class="w-20 h-20 rounded-2xl overflow-hidden border-2 border-emerald-400 shadow-lg shrink-0 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
+                                    <img src="${currentAvatar.img}" alt="${currentAvatar.label}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover">
+                                    <span class="hidden w-full h-full items-center justify-center text-xl font-black text-white">${currentInitials}</span>
+                                </div>
+                                <div class="space-y-1 text-center sm:text-left">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-extrabold">
+                                        Membre Ciné Lumière Gold
+                                    </span>
+                                    <h1 class="type-h2 text-white">${state.user.name}</h1>
+                                    <p class="text-xs font-semibold text-cinema-muted">Avatar : <strong class="text-white">${currentAvatar.label}</strong> · Multiplexe 15 Salles</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-cinema-bg/90 border border-amber-400/50 rounded-2xl px-5 py-3.5 text-center shrink-0">
+                                <p class="text-[11px] uppercase tracking-wider text-cinema-muted font-extrabold">Solde Fidélité</p>
+                                <p class="text-2xl font-black text-amber-400 flex items-center justify-center gap-1.5 mt-0.5">
+                                    <i class="ph-fill ph-popcorn"></i> ${state.user.points} pts
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-3 pt-2">
+                            <div class="bg-cinema-bg/70 border border-white/20 rounded-2xl p-3.5 text-center">
+                                <span class="text-lg sm:text-xl font-black text-white block">${state.tickets.length}</span>
+                                <span class="text-[11px] font-bold text-cinema-muted">Billets actifs</span>
+                            </div>
+                            <div class="bg-cinema-bg/70 border border-white/20 rounded-2xl p-3.5 text-center">
+                                <span class="text-lg sm:text-xl font-black text-emerald-400 block">${state.reviews.length}</span>
+                                <span class="text-[11px] font-bold text-cinema-muted">Avis publiés</span>
+                            </div>
+                            <div class="bg-cinema-bg/70 border border-white/20 rounded-2xl p-3.5 text-center">
+                                <span class="text-lg sm:text-xl font-black text-blue-400 block">15</span>
+                                <span class="text-[11px] font-bold text-cinema-muted">Salles accès</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 pt-4 border-t border-white/20">
+                            <div class="space-y-2">
+                                <label class="text-xs font-extrabold uppercase text-cinema-muted">Choisir un personnage comme photo de profil</label>
+                                <div class="grid grid-cols-5 gap-2.5">
+                                    ${AVATAR_CHOICES.map(av => {
+                                        const avInitials = av.label.split(' ').map(n => n[0]).join('').slice(0, 2);
+                                        return `
+                                        <button onclick="state.user.avatarId = '${av.id}'; triggerHaptic('tic', 'Photo de profil : ${av.label}'); render();"
+                                            title="${av.label}"
+                                            class="group relative rounded-2xl overflow-hidden border-2 aspect-square transition bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center ${state.user.avatarId === av.id ? 'border-emerald-400 scale-105 shadow-lg' : 'border-white/20 opacity-85 hover:opacity-100'}">
+                                            <img src="${av.img}" alt="${av.label}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover">
+                                            <span class="hidden w-full h-full items-center justify-center text-sm font-black text-white">${avInitials}</span>
+                                            <span class="absolute inset-x-0 bottom-0 bg-black/80 text-[9px] font-extrabold text-white px-1 py-0.5 truncate">${av.label.split(' ')[0]}</span>
+                                        </button>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 space-y-4 shadow-xl">
+                        <h2 class="text-base sm:text-lg font-extrabold text-white flex items-center gap-2">
+                            <i class="ph-fill ph-gift text-amber-400"></i> Échanger mes points fidélité
+                        </h2>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="bg-cinema-elevated border border-white/20 rounded-2xl p-4 flex flex-col justify-between gap-3">
+                                <div>
+                                    <span class="text-xs font-black text-amber-400">150 pts</span>
+                                    <h3 class="text-sm font-extrabold text-white mt-0.5">Popcorn Moyen Offert</h3>
+                                    <p class="text-[11px] font-semibold text-cinema-muted mt-1">Sucré ou salé au comptoir</p>
+                                </div>
+                                <button onclick="redeemReward(150, 'Popcorn Moyen Offert')"
+                                    class="w-full py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition">
+                                    Échanger
+                                </button>
+                            </div>
+
+                            <div class="bg-cinema-elevated border border-white/20 rounded-2xl p-4 flex flex-col justify-between gap-3">
+                                <div>
+                                    <span class="text-xs font-black text-amber-400">300 pts</span>
+                                    <h3 class="text-sm font-extrabold text-white mt-0.5">Place Cinéma Standard</h3>
+                                    <p class="text-[11px] font-semibold text-cinema-muted mt-1">Valable dans les 15 salles</p>
+                                </div>
+                                <button onclick="redeemReward(300, 'Place Cinéma Standard')"
+                                    class="w-full py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition">
+                                    Échanger
+                                </button>
+                            </div>
+
+                            <div class="bg-cinema-elevated border border-white/20 rounded-2xl p-4 flex flex-col justify-between gap-3">
+                                <div>
+                                    <span class="text-xs font-black text-amber-400">500 pts</span>
+                                    <h3 class="text-sm font-extrabold text-white mt-0.5">Duo IMAX + Confiserie</h3>
+                                    <p class="text-[11px] font-semibold text-cinema-muted mt-1">Supplément IMAX Laser offert</p>
+                                </div>
+                                <button onclick="redeemReward(500, 'Duo IMAX + Confiserie')"
+                                    class="w-full py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition">
+                                    Échanger
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cinema-card border border-white/20 rounded-3xl p-6 space-y-3 shadow-xl" id="profile-review-box">
+                        <h2 class="text-base font-extrabold text-white">Publier un avis spectateur (+${state.reviewBonus50 ? '50' : '25'} pts)</h2>
+                        <select id="review-movie" class="w-full p-3 rounded-xl bg-cinema-elevated border border-white/20 text-sm font-bold text-white">
+                            ${MOVIES.map(m => `<option value="${m.title}">${m.title}</option>`).join('')}
+                        </select>
+                        <textarea id="review-text" rows="3" placeholder="Partagez votre ressenti sur la séance..."
+                            class="w-full p-3 rounded-xl bg-cinema-elevated border border-white/20 text-sm font-semibold text-white placeholder-cinema-muted"></textarea>
+                        <button onclick="submitReview()" class="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-extrabold transition">
+                            Publier mon avis
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleImprevuDrawer(forceState) {
+            state.imprevuOpen = typeof forceState === 'boolean' ? forceState : !state.imprevuOpen;
+            const drawer = document.getElementById('imprevu-drawer');
+            if (drawer) {
+                drawer.classList.toggle('hidden', !state.imprevuOpen);
+            }
+            requestAnimationFrame(syncSearchPlacement);
+        }
+
+        function simulateImprevu(type) {
+            toggleImprevuDrawer(false);
+
+            if (type === 'seance_complete') {
+                triggerHaptic('tic', 'Séance initiale complète : bascule vers Salle 04 · Dolby Atmos');
+                startBooking('dune-2', '18:00', 'VOSTFR · Dolby Atmos', 'Salle 04', 'Aujourd’hui 15 Nov');
+                setTimeout(() => {
+                    showLegalModal(
+                        'Séance complète — Salle alternative proposée',
+                        'La Salle 01 (IMAX Laser) affiche complet pour cet horaire. Nous vous avons automatiquement réservé un créneau équivalent en Salle 04 (Dolby Atmos) avec des places centrales disponibles.'
+                    );
+                }, 100);
+            } else if (type === 'seance_annulee') {
+                state.user.points += 50;
+                triggerHaptic('success', 'Séance annulée : report gratuit ouvert + 50 pts offerts');
+                render();
+                setTimeout(() => {
+                    showLegalModal(
+                        'Séance annulée — Report gratuit ou remboursement',
+                        'Suite à un incident technique en cabine, votre séance a été annulée. Vous bénéficiez au choix d’un remboursement intégral immédiat sur votre moyen de paiement ou d’un report gratuit sur la séance suivante, accompagné de +50 points fidélité offerts.'
+                    );
+                }, 80);
+            } else if (type === 'paiement_refuse') {
+                state.paymentMethod = 'wallet';
+                triggerHaptic('tic', 'Paiement CB refusé : bascule Express proposée');
+                if (state.selectedSeats.length === 0) state.selectedSeats = ['D4', 'D5'];
+                navigateTo('payment');
+                setTimeout(() => {
+                    showLegalModal(
+                        'Paiement refusé — Plafond carte atteint',
+                        'Votre banque a refusé l’autorisation par carte bancaire (motif : plafond de paiement atteint). Réessayez instantanément en un clic via Apple Pay / Google Pay ou utilisez un autre moyen de paiement.'
+                    );
+                }, 100);
+            } else if (type === 'film_16') {
+                triggerHaptic('tic', 'Vérification d’âge bienveillante (-16 ans)');
+                showLegalModal(
+                    'Film interdit aux moins de 16 ans — Vérification bienveillante',
+                    'Le film sélectionné (« The Batman ») comporte une classification -16 ans. Afin d’éviter toute attente à l’entrée de la Salle 12, merci de préparer une pièce d’identité (carte nationale d’identité, passeport ou carte étudiante avec photo).'
+                );
+            } else if (type === 'hors_ligne') {
+                state.offlineSimulated = true;
+                triggerHaptic('success', 'Mode hors-ligne activé : QR Code prêt sans réseau');
+                navigateTo('tickets');
+            } else if (type === 'rappel_h1') {
+                const nextTicket = state.tickets[0];
+                const title = nextTicket ? nextTicket.movieTitle : 'Dune : Deuxième Partie';
+                const hall = nextTicket ? nextTicket.hall : 'Salle 01 · IMAX Laser';
+                const time = nextTicket ? nextTicket.time : '17:45';
+                triggerHaptic('success', `Rappel H-1 : ${title} à ${time} (${hall})`);
+                showLegalModal(
+                    'Rappel H-1 · Votre séance approche !',
+                    `Il reste 1 heure avant le début de « ${title} » à ${time} (${hall}). Votre billet QR Code est prêt dans l’onglet Billets pour un accès direct en salle.`
+                );
+            } else if (type === 'fin_seance_avis') {
+                state.reviewBonus50 = true;
+                triggerHaptic('success', 'Fin de séance : donnez votre avis pour +50 pts !');
+                navigateTo('profile');
+                setTimeout(() => {
+                    const box = document.getElementById('profile-review-box');
+                    if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            }
+        }
+
+        function render() {
+            updateHeader();
+            const main = document.getElementById('app-main');
+            if (state.view === 'home') main.innerHTML = renderHomeView();
+            else if (state.view === 'detail') main.innerHTML = renderMovieDetailView();
+            else if (state.view === 'coming-detail') main.innerHTML = renderComingSoonDetailView();
+            else if (state.view === 'seats') main.innerHTML = renderSeatsView();
+            else if (state.view === 'snacks') main.innerHTML = renderSnacksView();
+            else if (state.view === 'payment') main.innerHTML = renderPaymentView();
+            else if (state.view === 'tickets') main.innerHTML = renderTicketsView();
+            else if (state.view === 'program') main.innerHTML = renderProgramView();
+            else if (state.view === 'guide') main.innerHTML = renderGuideView();
+            else if (state.view === 'profile') main.innerHTML = renderProfileView();
+
+            requestAnimationFrame(syncSearchPlacement);
+        }
+
+        window.onload = function() {
+            applyTheme(state.themeMode, false);
+            const initialHash = (window.location.hash || '').replace('#', '').trim();
+            const initialView = VALID_VIEWS.includes(initialHash) ? initialHash : 'home';
+            state.view = initialView;
+            try {
+                history.replaceState(buildHistorySnapshot(initialView), '', `#${initialView}`);
+            } catch (e) {}
+            render();
+        };
+    </script>
+</body>
+</html>
